@@ -1,36 +1,56 @@
 #include "elevatormanager.h"
 #include "ui_elevatormanager.h"
-#include <QDebug>
+#include<QDebug>
 
 ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
 
     ui->setupUi(this);
+    addElevator(0, 2);
 }
 
 ElevatorManager::~ElevatorManager() {
     delete ui;
 }
 
-void ElevatorManager::on_asd_clicked() {
-    qInfo() << "Clicked";
-    ui->elevator0->setValue(5);
-    addElevator();
-}
+void ElevatorManager::addElevator(int minFloor, int maxFloor) {
+    this->maxFloorOverall = this->maxFloorOverall < maxFloor ? maxFloor : this->maxFloorOverall;
 
-void ElevatorManager::addElevator() {
-    auto *button = new QPushButton(this);
-    button->setText("Button ASD");
-    ui->horizontalLayout_7->addWidget(button);
+    auto *slider = new QSlider();
+    ui->elevatorsView->addWidget(slider);
 
-    auto *slider = new QSlider(this);
-    ui->horizontalLayout->addWidget(slider);
-
-    auto elevator = Elevator("next", 0, 10, slider);
+    auto elevator = Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider);
     this->elevators.push_front(elevator);
+
+    recalculateMinMaxFloor();
+    recalculateButtons();
 }
 
-void ElevatorManager::recalculateMaxFloor() {
+void ElevatorManager::recalculateMinMaxFloor() {
     for (auto &i : this->elevators) {
-        qInfo() << i.getName();
+        i.rerender(this->maxFloorOverall);
     }
 }
+
+void ElevatorManager::recalculateButtons() {
+    for (int i = GROUND_FLOOR_NUMBER; i <= maxFloorOverall; i++) {
+        auto lay = new QHBoxLayout();
+        lay->setObjectName("Layout" + QString::number(i));
+        for (int j = GROUND_FLOOR_NUMBER; j <= maxFloorOverall; j++) {
+            auto *button = new QPushButton();
+            button->setText(QString::number(j));
+            button->setObjectName("Button" + QString::number(i) + "/" + QString::number(j));
+            lay->addWidget(button);
+        }
+        ui->buttonsView->addLayout(lay);
+        buttons.push_front(lay);
+    }
+}
+
+void ElevatorManager::on_recalculateFloors_clicked() {
+    recalculateMinMaxFloor();
+}
+
+void ElevatorManager::on_addElevatorButton_clicked() {
+    addElevator(ui->minFloorInput->value(), ui->maxFloorInput->value());
+}
+

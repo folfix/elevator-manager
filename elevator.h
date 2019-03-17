@@ -7,14 +7,17 @@
 class Elevator {
 private:
     QString name;
-    int start;
-    int stop;
+    int minFloor;
+    int maxFloor;
     QSlider* slider;
+    QTimer* timer;
 
 public:
-    int getPosition();
     Elevator(QString name, int minFloor, int maxFloor, QSlider* slider);
     QString getName();
+    int getMinFloor();
+    int getMaxFloor();
+    void rerender(int maxFloor);
 };
 
 #endif // ELEVATOR_H
