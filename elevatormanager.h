@@ -1,6 +1,8 @@
 #ifndef ELEVATORMANAGER_H
 #define ELEVATORMANAGER_H
 
+#include "elevator.h"
+
 #include <QMainWindow>
 
 namespace Ui {
@@ -20,6 +22,9 @@ private slots:
 
 private:
     Ui::ElevatorManager *ui;
+    std::list<Elevator> elevators;
+    void addElevator();
+    void recalculateMaxFloor();
 };
 
 #endif // ELEVATORMANAGER_H
