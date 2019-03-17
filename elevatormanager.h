@@ -5,6 +5,7 @@
 
 #include <QMainWindow>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QPushButton>
 
 namespace Ui {
     class ElevatorManager;
@@ -28,7 +29,7 @@ private slots:
 private:
     Ui::ElevatorManager *ui;
     std::list<Elevator> elevators;
-    std::list<QHBoxLayout*> buttons;
+    std::list<QPushButton*> buttonsEntries;
 
     int maxFloorOverall = GROUND_FLOOR_NUMBER;
 

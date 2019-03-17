@@ -1,6 +1,5 @@
 #include "elevatormanager.h"
 #include "ui_elevatormanager.h"
-#include<QDebug>
 
 ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
 
@@ -32,6 +31,12 @@ void ElevatorManager::recalculateMinMaxFloor() {
 }
 
 void ElevatorManager::recalculateButtons() {
+    for (auto &i : buttonsEntries) {
+        delete i;
+    }
+
+    buttonsEntries.clear();
+
     for (int i = GROUND_FLOOR_NUMBER; i <= maxFloorOverall; i++) {
         auto lay = new QHBoxLayout();
         lay->setObjectName("Layout" + QString::number(i));
@@ -40,9 +45,9 @@ void ElevatorManager::recalculateButtons() {
             button->setText(QString::number(j));
             button->setObjectName("Button" + QString::number(i) + "/" + QString::number(j));
             lay->addWidget(button);
+            buttonsEntries.push_front(button);
         }
         ui->buttonsView->addLayout(lay);
-        buttons.push_front(lay);
     }
 }
 
