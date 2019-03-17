@@ -16,7 +16,7 @@ public:
     ~ElevatorManager();
 
 private slots:
-    void on_callElevatorButton_clicked();
+    void on_asd_clicked();
 
 private:
     Ui::ElevatorManager *ui;

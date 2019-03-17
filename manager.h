@@ -3,6 +3,6 @@
 
 #include <QString>
 
-QString callElevator(int);
+QString callElevator(int, int);
 
 #endif // MANAGER_H
