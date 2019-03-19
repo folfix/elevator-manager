@@ -22,14 +22,17 @@ public:
     static const int GROUND_FLOOR_NUMBER = 0;
 
 private slots:
+
     void on_addElevatorButton_clicked();
 
     void on_settingsButton_triggered();
 
+    void callElevator(int from, int to);
+
 private:
     Ui::ElevatorManager *ui;
     std::list<Elevator> elevators;
-    std::list<QPushButton*> buttonsEntries;
+    std::list<QPushButton *> buttonsEntries;
 
     int maxFloorOverall = GROUND_FLOOR_NUMBER;
 
