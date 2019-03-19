@@ -2,6 +2,8 @@
 #define SETTINGS_H
 
 #include <QDialog>
+#include "elevator.h"
+
 
 namespace Ui {
 class Settings;
@@ -17,6 +19,7 @@ public:
 
 private:
     Ui::Settings *ui;
+    std::list<Elevator> elevators;
 };
 
 #endif // SETTINGS_H

@@ -22,9 +22,9 @@ public:
     static const int GROUND_FLOOR_NUMBER = 0;
 
 private slots:
-    void on_recalculateFloors_clicked();
-
     void on_addElevatorButton_clicked();
+
+    void on_settingsButton_triggered();
 
 private:
     Ui::ElevatorManager *ui;

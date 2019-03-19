@@ -5,7 +5,13 @@
 ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
 
     ui->setupUi(this);
+    this->setFixedSize(1100, 600);
+    this->statusBar()->setSizeGripEnabled(false);
+
+//    ui->buttonsView->addStretch(-10);
     addElevator(0, 2);
+    addElevator(2, 3);
+    addElevator(0, 5);
 }
 
 ElevatorManager::~ElevatorManager() {
@@ -38,13 +44,15 @@ void ElevatorManager::recalculateButtons() {
 
     buttonsEntries.clear();
 
-    for (int i = GROUND_FLOOR_NUMBER; i <= maxFloorOverall; i++) {
+    for (int i = maxFloorOverall; i >= GROUND_FLOOR_NUMBER; i--) {
         auto lay = new QHBoxLayout();
         lay->setObjectName("Layout" + QString::number(i));
         for (int j = GROUND_FLOOR_NUMBER; j <= maxFloorOverall; j++) {
             auto *button = new QPushButton();
-            button->setText(QString::number(j));
+            button->setText("Floor" + QString::number(i) + "/" + QString::number(j));
             button->setObjectName("Button" + QString::number(i) + "/" + QString::number(j));
+            button->setSizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Preferred);
+            button->setDisabled(i==j);
             lay->addWidget(button);
             buttonsEntries.push_front(button);
         }
@@ -52,13 +60,11 @@ void ElevatorManager::recalculateButtons() {
     }
 }
 
-void ElevatorManager::on_recalculateFloors_clicked() {
-//    recalculateMinMaxFloor();
-    Settings *dialog = new Settings(this);
-    dialog->exec();
-}
-
 void ElevatorManager::on_addElevatorButton_clicked() {
     addElevator(ui->minFloorInput->value(), ui->maxFloorInput->value());
 }
 
+void ElevatorManager::on_settingsButton_triggered(){
+    auto *dialog = new Settings(this);
+    dialog->exec();
+}
