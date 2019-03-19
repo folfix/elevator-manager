@@ -27,15 +27,18 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         elevatormanager.cpp \
-    elevator.cpp
+    elevator.cpp \
+    settings.cpp
 
 HEADERS += \
         elevatormanager.h \
     elevator.h \
-    manager.h
+    manager.h \
+    settings.h
 
 FORMS += \
-        elevatormanager.ui
+        elevatormanager.ui \
+    settings.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

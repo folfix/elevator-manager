@@ -1,5 +1,6 @@
 #include "elevatormanager.h"
 #include "ui_elevatormanager.h"
+#include "settings.h"
 
 ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
 
@@ -52,7 +53,9 @@ void ElevatorManager::recalculateButtons() {
 }
 
 void ElevatorManager::on_recalculateFloors_clicked() {
-    recalculateMinMaxFloor();
+//    recalculateMinMaxFloor();
+    Settings *dialog = new Settings(this);
+    dialog->exec();
 }
 
 void ElevatorManager::on_addElevatorButton_clicked() {
