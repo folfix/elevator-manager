@@ -36,7 +36,8 @@ HEADERS += \
     elevator.h \
     manager.h \
     settings.h \
-    passenger.h
+    passenger.h \
+    direction.h
 
 FORMS += \
         elevatormanager.ui \

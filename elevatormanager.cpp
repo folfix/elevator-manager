@@ -10,7 +10,7 @@ ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new 
 
     connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
 
-    addElevator(0, 5);
+    addElevator(0, 10);
 }
 
 ElevatorManager::~ElevatorManager() {

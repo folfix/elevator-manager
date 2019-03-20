@@ -3,11 +3,8 @@
 
 #include <QSlider>
 #include <QString>
+#include "direction.h"
 #include "passenger.h"
-
-enum Direction {
-    STOP, UP, DOWN
-};
 
 class Elevator {
 private:
@@ -16,16 +13,24 @@ private:
     int minFloor;
     int maxFloor;
     int currentFloor;
+    int destinationFloor;
     Direction direction;
-    std::list<int> floorQueue;
+    std::list<Passenger> waitingPassengers;
+    std::list<Passenger> passengersInside;
 
     QSlider* slider;
     QTimer* timer;
-    void moveToFloor(int floor);
-    void openCloseDoor();
+    void start();
+    void openDoor();
+    void closeDoor();
     void handlePassenger(Passenger passenger);
 
-    void addFloorToQueue(int floor);
+    void checkIfAnyPassengerIsInDestination();
+    void checkIfAnyPassengerWantsGetIn();
+
+    int getLowestDestinationFloor();
+    int getHighestDestinationFloor();
+
 
 public:
     Elevator(QString name, int minFloor, int maxFloor, QSlider* slider);
