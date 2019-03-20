@@ -4,14 +4,12 @@
 #include "qdebug.h"
 
 ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
-
     ui->setupUi(this);
     this->setFixedSize(1100, 600);
     this->statusBar()->setSizeGripEnabled(false);
 
-//    ui->buttonsView->addStretch(-10);
-    addElevator(0, 2);
-    addElevator(2, 3);
+    connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
+
     addElevator(0, 5);
 }
 
@@ -33,8 +31,8 @@ void ElevatorManager::addElevator(int minFloor, int maxFloor) {
 }
 
 void ElevatorManager::recalculateMinMaxFloor() {
-    for (auto &i : this->elevators) {
-        i.rerender(this->maxFloorOverall);
+    for (auto &elevator : this->elevators) {
+        elevator.rerender(this->maxFloorOverall);
     }
 }
 
@@ -50,28 +48,31 @@ void ElevatorManager::recalculateButtons() {
         lay->setObjectName("Layout" + QString::number(fromFloor));
         for (int toFloor = GROUND_FLOOR_NUMBER; toFloor <= maxFloorOverall; toFloor++) {
             auto *button = new QPushButton();
-            button->setText("Floor" + QString::number(fromFloor) + "/" + QString::number(toFloor));
+            button->setText(QString::number(fromFloor) + " -> " + QString::number(toFloor));
             button->setObjectName("Button" + QString::number(fromFloor) + "/" + QString::number(toFloor));
             button->setSizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Preferred);
             button->setDisabled(fromFloor == toFloor);
             lay->addWidget(button);
-            connect(button, &QAbstractButton::clicked, this, [=]{ callElevator(fromFloor, toFloor); });
+            connect(button, &QPushButton::clicked, this, [=] { callElevator(fromFloor, toFloor); });
             buttonsEntries.push_front(button);
         }
         ui->buttonsView->addLayout(lay);
     }
 }
 
-
 void ElevatorManager::callElevator(int from, int to) {
     qInfo() << "Called elevator:" << from << "->" << to;
+
+    // jadące w kiedynku docelowym i po drodze
+    // windy STOP najbliższe pasażerowi
+
+
+    for (auto &elevator : this->elevators) {
+        elevator.addPassenger(Passenger(from, to));
+    }
 }
 
-void ElevatorManager::on_addElevatorButton_clicked() {
-    addElevator(ui->minFloorInput->value(), ui->maxFloorInput->value());
-}
-
-void ElevatorManager::on_settingsButton_triggered() {
+void ElevatorManager::openSettings() {
     auto *dialog = new Settings(this);
     dialog->exec();
 }

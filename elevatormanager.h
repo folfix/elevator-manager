@@ -21,13 +21,6 @@ public:
 
     static const int GROUND_FLOOR_NUMBER = 0;
 
-private slots:
-
-    void on_addElevatorButton_clicked();
-
-    void on_settingsButton_triggered();
-
-    void callElevator(int from, int to);
 
 private:
     Ui::ElevatorManager *ui;
@@ -37,10 +30,11 @@ private:
     int maxFloorOverall = GROUND_FLOOR_NUMBER;
 
     void addElevator(int minFloor, int maxFloor);
-
+    void callElevator(int from, int to);
     void recalculateMinMaxFloor();
-
     void recalculateButtons();
+
+    void openSettings();
 };
 
 #endif // ELEVATORMANAGER_H

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,13 +28,15 @@ SOURCES += \
         main.cpp \
         elevatormanager.cpp \
     elevator.cpp \
-    settings.cpp
+    settings.cpp \
+    passenger.cpp
 
 HEADERS += \
         elevatormanager.h \
     elevator.h \
     manager.h \
-    settings.h
+    settings.h \
+    passenger.h
 
 FORMS += \
         elevatormanager.ui \
