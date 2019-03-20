@@ -13,12 +13,12 @@ Direction Passenger::getDirection() {
 
 void Passenger::inElevator() {
     status = IN_ELEVATOR;
-    qInfo() << "Passenger in elevator";
+    qInfo() << "Passenger in elevator:" << waitFloor << "->" << destinationFloor;
 }
 
 void Passenger::done() {
     status = DONE;
-    qInfo() << "Passenger has arrived";
+    qInfo() << "Passenger has arrived:" << waitFloor << "->" << destinationFloor;
 }
 
 PassengerStatus Passenger::getStatus() {

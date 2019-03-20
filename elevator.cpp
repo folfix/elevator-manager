@@ -18,19 +18,14 @@ Elevator::Elevator(QString name, int minFloor, int maxFloor, QSlider *slider) {
     this->slider->setDisabled(true);
     direction = STOP;
     currentFloor = 0;
-}
-
-void Elevator::handlePassenger(Passenger passenger) {
-//    start(passenger.waitFloor);
-//    start(passenger.destinationFloor);
+    isReturning = false;
 }
 
 void Elevator::start() {
-    int destinationFloorAfterDirectionChange;
-
     if (currentFloor == destinationFloor) {
-        qInfo() << "Should not happen";
-        exit(1);
+        qInfo() << "Elevator on destination floor";
+        checkIfAnyPassengerIsInDestination();
+        checkIfAnyPassengerWantsGetIn();
     } else if (currentFloor < destinationFloor) {
         direction = UP;
         qInfo() << "Elevator going up";
@@ -54,14 +49,47 @@ void Elevator::start() {
         }
     }
 
+    if (isReturning) {
+        qInfo() << "Elevator reached destination floor" << destinationFloor;
+        direction = STOP;
+        waitingPassengers.clear();
+        passengersInside.clear();
+        isReturning = false;
+    } else {
+        isReturning = true;
+        updateDestinationFloor();
+        start();
+    }
+}
 
-    qInfo() << "Elevator reached destination floor" << destinationFloor;
-    direction = STOP;
+int Elevator::getLowestWaitingFloor() {
+    int floor = 1000;
+    for (auto &passenger : waitingPassengers) {
+        floor = floor < passenger.waitFloor ? floor : passenger.waitFloor;
+    }
+    for (auto &passenger : passengersInside) {
+        floor = floor < passenger.waitFloor ? floor : passenger.waitFloor;
+    }
+    return floor;
+}
+
+int Elevator::getHighestWaitingFloor() {
+    int floor = 0;
+    for (auto &passenger : passengersInside) {
+        floor = floor > passenger.waitFloor ? floor : passenger.waitFloor;
+    }
+    for (auto &passenger : waitingPassengers) {
+        floor = floor > passenger.waitFloor ? floor : passenger.waitFloor;
+    }
+    return floor;
 }
 
 int Elevator::getLowestDestinationFloor() {
-    int floor = 0;
+    int floor = 1000;
     for (auto &passenger : passengersInside) {
+        floor = floor < passenger.destinationFloor ? floor : passenger.destinationFloor;
+    }
+    for (auto &passenger : waitingPassengers) {
         floor = floor < passenger.destinationFloor ? floor : passenger.destinationFloor;
     }
     return floor;
@@ -70,6 +98,9 @@ int Elevator::getLowestDestinationFloor() {
 int Elevator::getHighestDestinationFloor() {
     int floor = 0;
     for (auto &passenger : passengersInside) {
+        floor = floor > passenger.destinationFloor ? floor : passenger.destinationFloor;
+    }
+    for (auto &passenger : waitingPassengers) {
         floor = floor > passenger.destinationFloor ? floor : passenger.destinationFloor;
     }
     return floor;
@@ -111,12 +142,7 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
             return passenger.getStatus() == DONE;
         });
 
-        if (direction == UP) {
-            destinationFloor = getHighestDestinationFloor();
-        } else {
-            destinationFloor = getLowestDestinationFloor();
-        }
-
+        updateDestinationFloor();
         closeDoor();
     }
 }
@@ -130,6 +156,7 @@ void Elevator::addPassenger(Passenger passenger) {
     if (direction == STOP) {
         waitingPassengers.push_front(passenger);
         destinationFloor = passenger.waitFloor;
+        updateDestinationFloor();
         QFuture<void> future = QtConcurrent::run([=] { start(); });
     }
 
@@ -150,6 +177,29 @@ void Elevator::addPassenger(Passenger passenger) {
             exit(1);
         }
     }
+}
+
+void Elevator::updateDestinationFloor() {
+    int lowestWaitingFloor = getLowestWaitingFloor();
+    int highestWaitingFloor = getHighestWaitingFloor();
+
+    int lowestDestinationFloor = getLowestDestinationFloor();
+    int highestDestinationFloor = getHighestDestinationFloor();
+
+    if (isReturning) {
+        if (currentFloor == highestDestinationFloor && destinationFloor == lowestDestinationFloor) {
+            destinationFloor = currentFloor;
+        } else {
+            destinationFloor = currentFloor < highestDestinationFloor ? highestDestinationFloor : lowestDestinationFloor;
+        }
+    } else {
+        if (currentFloor == highestWaitingFloor && destinationFloor == lowestWaitingFloor) {
+            destinationFloor = currentFloor;
+        } else {
+            destinationFloor = currentFloor < highestWaitingFloor ? highestWaitingFloor : lowestWaitingFloor;
+        }
+    }
+    qInfo() << "Calculated destination floor as" << destinationFloor;
 }
 
 void Elevator::openDoor() {

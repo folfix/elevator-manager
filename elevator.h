@@ -17,19 +17,23 @@ private:
     Direction direction;
     std::list<Passenger> waitingPassengers;
     std::list<Passenger> passengersInside;
+    bool isReturning;
 
     QSlider* slider;
     QTimer* timer;
     void start();
     void openDoor();
     void closeDoor();
-    void handlePassenger(Passenger passenger);
 
     void checkIfAnyPassengerIsInDestination();
     void checkIfAnyPassengerWantsGetIn();
 
     int getLowestDestinationFloor();
     int getHighestDestinationFloor();
+    int getLowestWaitingFloor();
+    int getHighestWaitingFloor();
+
+    void updateDestinationFloor();
 
 
 public:
