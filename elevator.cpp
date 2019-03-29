@@ -139,7 +139,7 @@ void Elevator::addPassenger(Passenger passenger) {
         passengers.push_front(passenger);
         destinationFloor = passenger.waitFloor;
         updateDestinationFloor();
-        QFuture<void> future = QtConcurrent::run([=] { start(); });
+        future = QtConcurrent::run([=] { start(); });
     }
 
     if (direction == UP) {
@@ -210,10 +210,19 @@ int Elevator::getMaxFloor() {
     return this->maxFloor;
 }
 
+int Elevator::getCurrentFloor() {
+    return this->currentFloor;
+}
+
 void Elevator::rerender(int maxFloor) {
     slider->setMaximum(maxFloor);
 }
 
+void Elevator::forceStop() {
+    qInfo() << "Forcing stop";
+    future.cancel();
+    future.waitForFinished();
+}
 
 
 

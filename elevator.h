@@ -3,6 +3,7 @@
 
 #include <QSlider>
 #include <QString>
+#include <QFuture>
 #include "direction.h"
 #include "passenger.h"
 
@@ -20,6 +21,8 @@ private:
     unsigned long waitDuration;
 
     QSlider* slider;
+    QFuture<void> future;
+
     QTimer* timer;
     void start();
     void openDoor();
@@ -41,10 +44,13 @@ public:
     QString getName();
     int getMinFloor();
     int getMaxFloor();
+    int getCurrentFloor();
     void rerender(int maxFloor);
     Direction getDirection();
 
     void addPassenger(Passenger passenger);
+
+    void forceStop();
 };
 
 
