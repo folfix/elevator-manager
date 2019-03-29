@@ -27,4 +27,5 @@ target_link_libraries(ElevatorManager Qt5::Widgets)
 target_link_libraries(ElevatorManager Qt5::Quick)
 target_link_libraries(ElevatorManager Qt5::Concurrent)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(tests)
