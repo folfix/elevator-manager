@@ -10,7 +10,7 @@ ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new 
 
     connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
 
-    addElevator(0, 10);
+    addElevator(0, 15);
 }
 
 ElevatorManager::~ElevatorManager() {
@@ -23,7 +23,7 @@ void ElevatorManager::addElevator(int minFloor, int maxFloor) {
     auto *slider = new QSlider();
     ui->elevatorsView->addWidget(slider);
 
-    auto elevator = Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider);
+    auto elevator = Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider, 400);
     this->elevators.push_front(elevator);
 
     recalculateMinMaxFloor();

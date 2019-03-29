@@ -114,8 +114,16 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
         return passenger.isWaiting() && currentFloor == passenger.waitFloor;
     });
 
+    bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger passenger) {
+        return currentFloor == passenger.destinationFloor;
+    });
+
     if (anyOneWantsGetIn) {
-        openDoor();
+        if (!anyOneInDestination) {
+            openDoor();
+        }
+
+
         for (auto &passenger : passengers) {
             if (passenger.isWaiting() && currentFloor == passenger.waitFloor) {
                 passenger.goToElevator();
@@ -125,15 +133,17 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
 //            return passenger.getStatus() == DONE;
 //        });
         updateDestinationFloor();
-        closeDoor();
+
+        if (!anyOneInDestination) {
+            closeDoor();
+        }
     }
 }
 
 void Elevator::addPassenger(Passenger passenger) {
     //handle dodanie kolejnego
 
-    // jak winda jedzie np. na dół na parter, to tezeba zrobić tak, żeby się stakowały wezwania
-    // tak samo jak winda jedzie np na 10 piętro, to po drodze może zabrać pasażera z 3 na 5
+    qInfo() << "Passenger is waiting for elevator at floor" << passenger.waitFloor;
 
     if (direction == STOP) {
         passengers.push_front(passenger);
@@ -172,7 +182,8 @@ void Elevator::updateDestinationFloor() {
         if (currentFloor == highestDestinationFloor && destinationFloor == lowestDestinationFloor) {
             destinationFloor = currentFloor;
         } else {
-            destinationFloor = currentFloor < highestDestinationFloor ? highestDestinationFloor : lowestDestinationFloor;
+            destinationFloor =
+                    currentFloor < highestDestinationFloor ? highestDestinationFloor : lowestDestinationFloor;
         }
     } else {
         if (currentFloor == highestWaitingFloor && destinationFloor == lowestWaitingFloor) {

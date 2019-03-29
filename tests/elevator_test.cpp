@@ -127,3 +127,100 @@ TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsOnTheSameFloor) {
 
     elevator->forceStop();
 }
+
+TEST_F(ElevatorTest, testAddSecondPassager) {
+    auto *slider = new QSlider();
+    auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
+    auto passenger1 = Passenger(0, 5);
+    auto passenger2 = Passenger(3, 4);
+
+    EXPECT_EQ(elevator->getDirection(), STOP);
+    elevator->addPassenger(passenger1);
+    waitInit();
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getDirection(), UP);
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 0);
+    waitBetweenFloors();
+    EXPECT_EQ(elevator->getCurrentFloor(), 1);
+    waitBetweenFloors();
+
+    elevator->addPassenger(passenger2);
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 2);
+    waitBetweenFloors();
+    EXPECT_EQ(elevator->getCurrentFloor(), 3);
+    waitBetweenFloors();
+
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 4);
+    waitBetweenFloors();
+
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 5);
+    waitBetweenFloors();
+
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getDirection(), STOP);
+
+    elevator->forceStop();
+}
+
+TEST_F(ElevatorTest, testAddThreePassagers) {
+    auto *slider = new QSlider();
+    auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
+    auto passenger1 = Passenger(0, 5);
+    auto passenger2 = Passenger(3, 4);
+    auto passenger3 = Passenger(4, 8);
+
+    EXPECT_EQ(elevator->getDirection(), STOP);
+    elevator->addPassenger(passenger1);
+    waitInit();
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getDirection(), UP);
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 0);
+    waitBetweenFloors();
+    EXPECT_EQ(elevator->getCurrentFloor(), 1);
+    waitBetweenFloors();
+
+    elevator->addPassenger(passenger2);
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 2);
+    waitBetweenFloors();
+
+    elevator->addPassenger(passenger3);
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 3);
+    waitBetweenFloors();
+
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 4);
+    waitBetweenFloors();
+
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 5);
+    waitBetweenFloors();
+
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getCurrentFloor(), 6);
+    waitBetweenFloors();
+    EXPECT_EQ(elevator->getCurrentFloor(), 7);
+    waitBetweenFloors();
+    EXPECT_EQ(elevator->getCurrentFloor(), 8);
+    waitBetweenFloors();
+
+    waitDoorOpenClose();
+
+    EXPECT_EQ(elevator->getDirection(), STOP);
+
+    elevator->forceStop();
+}
