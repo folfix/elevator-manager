@@ -1,7 +1,7 @@
 #ifndef ELEVATORMANAGER_H
 #define ELEVATORMANAGER_H
 
-#include "elevator.h"
+#include "src/elevator/elevator.h"
 
 #include <QMainWindow>
 #include <QtWidgets/QHBoxLayout>

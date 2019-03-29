@@ -25,25 +25,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
-        main.cpp \
-        elevatormanager.cpp \
-    elevator.cpp \
-    settings.cpp \
-    passenger.cpp
+    src/elevator/elevator.cpp \
+    src/main/elevatormanager.cpp \
+    src/passenger/passenger.cpp \
+    src/settings/settings.cpp \
+    src/main.cpp
+
 
 HEADERS += \
-        elevatormanager.h \
-    elevator.h \
-    manager.h \
-    settings.h \
-    passenger.h \
-    direction.h
+    src/elevator/direction.h \
+    src/elevator/elevator.h \
+    src/main/elevatormanager.h \
+    src/passenger/passenger.h \
+    src/settings/settings.h
 
 FORMS += \
-        elevatormanager.ui \
-    settings.ui
+    src/main/elevatormanager.ui \
+    src/settings/settings.ui
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+SUBDIRS += \
+    ElevatorManager.pro
+
+DISTFILES += \

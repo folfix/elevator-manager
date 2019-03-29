@@ -18,6 +18,9 @@ find_package(Qt5Concurrent REQUIRED)
 file(GLOB ElevatorManager_SRC
         "*.h"
         "*.cpp"
+        "src/main.cpp"
+        "src/*/*.h"
+        "src/*/*.cpp"
         )
 
 add_executable(ElevatorManager ${ElevatorManager_SRC})

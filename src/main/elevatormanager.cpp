@@ -1,6 +1,6 @@
 #include "elevatormanager.h"
 #include "ui_elevatormanager.h"
-#include "settings.h"
+#include "src/settings/settings.h"
 #include "qdebug.h"
 
 ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {

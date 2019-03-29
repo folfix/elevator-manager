@@ -22,10 +22,10 @@ include_directories(${GTEST_INCLUDE_DIRS})
 file(GLOB ElevatorManager_TESTS
         "*.h"
         "*.cpp"
-        "../elevator.h"
-        "../elevator.cpp"
-        "../passenger.h"
-        "../passenger.cpp"
+        "../src/elevator/elevator.h"
+        "../src/elevator/elevator.cpp"
+        "../src/passenger/passenger.h"
+        "../src/passenger/passenger.cpp"
         )
 
 add_executable(ElevatorManagerTests ${ElevatorManager_TESTS})

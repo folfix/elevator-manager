@@ -1,8 +1,8 @@
 #include <QtWidgets/QApplication>
 #include "gtest/gtest.h"
-#include "elevator.h"
-#include "passenger.h"
-#include "direction.h"
+#include "src/elevator/elevator.h"
+#include "../src/passenger/passenger.h"
+#include "src/elevator/direction.h"
 
 class ElevatorTest : public ::testing::Test {
 protected:
@@ -16,7 +16,7 @@ protected:
     }
 
     void waitInit() {
-        ::usleep(100 * waitTime);
+        ::usleep(500 * waitTime);
     }
 
     void waitBetweenFloors() {
@@ -29,7 +29,7 @@ protected:
         this->waitBetweenFloors();
     }
 
-    __useconds_t waitTime = 10;
+    __useconds_t waitTime = 1;
 };
 
 TEST_F(ElevatorTest, testInit) {

@@ -1,7 +1,7 @@
 #ifndef PASSENGER_H
 #define PASSENGER_H
 
-#include "direction.h"
+#include "src/elevator/direction.h"
 
 
 enum PassengerStatus {WAITING, IN_ELEVATOR, DONE};

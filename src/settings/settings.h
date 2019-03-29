@@ -2,7 +2,7 @@
 #define SETTINGS_H
 
 #include <QDialog>
-#include "elevator.h"
+#include "src/elevator/elevator.h"
 
 
 namespace Ui {

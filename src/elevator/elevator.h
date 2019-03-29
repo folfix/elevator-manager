@@ -5,7 +5,7 @@
 #include <QString>
 #include <QFuture>
 #include "direction.h"
-#include "passenger.h"
+#include "../passenger/passenger.h"
 
 class Elevator {
 private:

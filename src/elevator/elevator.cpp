@@ -5,7 +5,7 @@
 #include <QtConcurrent>
 
 #include "elevator.h"
-#include "elevatormanager.h"
+#include "src/main/elevatormanager.h"
 
 Elevator::Elevator(QString name, int minFloor, int maxFloor, QSlider *slider, unsigned long waitDuration) {
     this->name = std::move(name);
