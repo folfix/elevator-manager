@@ -52,8 +52,7 @@ void Elevator::start() {
     if (isReturning) {
         qInfo() << "Elevator reached destination floor" << destinationFloor;
         direction = STOP;
-        waitingPassengers.clear();
-        passengersInside.clear();
+        passengers.clear();
         isReturning = false;
     } else {
         isReturning = true;
@@ -63,85 +62,67 @@ void Elevator::start() {
 }
 
 int Elevator::getLowestWaitingFloor() {
-    int floor = 1000;
-    for (auto &passenger : waitingPassengers) {
-        floor = floor < passenger.waitFloor ? floor : passenger.waitFloor;
-    }
-    for (auto &passenger : passengersInside) {
-        floor = floor < passenger.waitFloor ? floor : passenger.waitFloor;
-    }
-    return floor;
+    Passenger min = *std::min_element(passengers.begin(), passengers.end(), [=](Passenger a, Passenger b) {
+        return (a.waitFloor < b.waitFloor);
+    });
+    return min.waitFloor;
 }
 
 int Elevator::getHighestWaitingFloor() {
-    int floor = 0;
-    for (auto &passenger : passengersInside) {
-        floor = floor > passenger.waitFloor ? floor : passenger.waitFloor;
-    }
-    for (auto &passenger : waitingPassengers) {
-        floor = floor > passenger.waitFloor ? floor : passenger.waitFloor;
-    }
-    return floor;
+    Passenger max = *std::max_element(passengers.begin(), passengers.end(), [=](Passenger a, Passenger b) {
+        return (a.waitFloor < b.waitFloor);
+    });
+    return max.waitFloor;
 }
 
 int Elevator::getLowestDestinationFloor() {
-    int floor = 1000;
-    for (auto &passenger : passengersInside) {
-        floor = floor < passenger.destinationFloor ? floor : passenger.destinationFloor;
-    }
-    for (auto &passenger : waitingPassengers) {
-        floor = floor < passenger.destinationFloor ? floor : passenger.destinationFloor;
-    }
-    return floor;
+    Passenger min = *std::min_element(passengers.begin(), passengers.end(), [=](Passenger a, Passenger b) {
+        return (a.destinationFloor < b.destinationFloor);
+    });
+    return min.destinationFloor;
 }
 
 int Elevator::getHighestDestinationFloor() {
-    int floor = 0;
-    for (auto &passenger : passengersInside) {
-        floor = floor > passenger.destinationFloor ? floor : passenger.destinationFloor;
-    }
-    for (auto &passenger : waitingPassengers) {
-        floor = floor > passenger.destinationFloor ? floor : passenger.destinationFloor;
-    }
-    return floor;
+    Passenger max = *std::max_element(passengers.begin(), passengers.end(), [=](Passenger a, Passenger b) {
+        return (a.destinationFloor < b.destinationFloor);
+    });
+    return max.destinationFloor;
 }
 
 void Elevator::checkIfAnyPassengerIsInDestination() {
-    bool anyOneInDestination = std::any_of(passengersInside.begin(), passengersInside.end(), [=](Passenger passenger) {
-        return currentFloor == passenger.destinationFloor;
+    bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger passenger) {
+        return passenger.isInElevator() && currentFloor == passenger.destinationFloor;
     });
 
     if (anyOneInDestination) {
         openDoor();
-        for (auto &passenger : passengersInside) {
-            if (currentFloor == passenger.destinationFloor) {
+        for (auto &passenger : passengers) {
+            if (passenger.isInElevator() && currentFloor == passenger.destinationFloor) {
                 passenger.done();
             }
         }
-        std::remove_if(passengersInside.begin(), passengersInside.end(), [=](Passenger passenger) {
-            return passenger.getStatus() == DONE;
-        });
+//        std::remove_if(passengers.begin(), passengers.end(), [=](Passenger passenger) {
+//            return passenger.getStatus() == DONE;
+//        });
         closeDoor();
     }
 }
 
 void Elevator::checkIfAnyPassengerWantsGetIn() {
-    bool anyOneWantsGetIn = std::any_of(waitingPassengers.begin(), waitingPassengers.end(), [=](Passenger passenger) {
-        return currentFloor == passenger.waitFloor;
+    bool anyOneWantsGetIn = std::any_of(passengers.begin(), passengers.end(), [=](Passenger passenger) {
+        return passenger.isWaiting() && currentFloor == passenger.waitFloor;
     });
 
     if (anyOneWantsGetIn) {
         openDoor();
-        for (auto &passenger : waitingPassengers) {
-            if (currentFloor == passenger.waitFloor) {
-                passenger.inElevator();
-                passengersInside.push_front(passenger);
+        for (auto &passenger : passengers) {
+            if (passenger.isWaiting() && currentFloor == passenger.waitFloor) {
+                passenger.goToElevator();
             }
         }
-        std::remove_if(waitingPassengers.begin(), waitingPassengers.end(), [=](Passenger passenger) {
-            return passenger.getStatus() == DONE;
-        });
-
+//        std::remove_if(waitingPassengers.begin(), waitingPassengers.end(), [=](Passenger passenger) {
+//            return passenger.getStatus() == DONE;
+//        });
         updateDestinationFloor();
         closeDoor();
     }
@@ -154,7 +135,7 @@ void Elevator::addPassenger(Passenger passenger) {
     // tak samo jak winda jedzie np na 10 piętro, to po drodze może zabrać pasażera z 3 na 5
 
     if (direction == STOP) {
-        waitingPassengers.push_front(passenger);
+        passengers.push_front(passenger);
         destinationFloor = passenger.waitFloor;
         updateDestinationFloor();
         QFuture<void> future = QtConcurrent::run([=] { start(); });
@@ -162,7 +143,7 @@ void Elevator::addPassenger(Passenger passenger) {
 
     if (direction == UP) {
         if (passenger.getDirection() == UP) {
-            waitingPassengers.push_front(passenger);
+            passengers.push_front(passenger);
         } else {
             qInfo() << "Don't add passenger that do not follow elevator direction";
             exit(1);
@@ -171,7 +152,7 @@ void Elevator::addPassenger(Passenger passenger) {
 
     if (direction == DOWN) {
         if (passenger.getDirection() == DOWN) {
-            waitingPassengers.push_front(passenger);
+            passengers.push_front(passenger);
         } else {
             qInfo() << "Don't add passenger that do not follow elevator direction";
             exit(1);

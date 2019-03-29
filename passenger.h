@@ -13,10 +13,15 @@ public:
     int waitFloor;
     int destinationFloor;
 
-    void inElevator();
+    void goToElevator();
     void done();
     PassengerStatus getStatus();
     Direction getDirection();
+
+    bool isInElevator();
+    bool isWaiting();
+    bool isDone();
+
 
 private:
     PassengerStatus status;

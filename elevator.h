@@ -15,8 +15,7 @@ private:
     int currentFloor;
     int destinationFloor;
     Direction direction;
-    std::list<Passenger> waitingPassengers;
-    std::list<Passenger> passengersInside;
+    std::list<Passenger> passengers;
     bool isReturning;
 
     QSlider* slider;

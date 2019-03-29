@@ -11,7 +11,7 @@ Direction Passenger::getDirection() {
     return waitFloor < destinationFloor ? UP : DOWN;
 }
 
-void Passenger::inElevator() {
+void Passenger::goToElevator() {
     status = IN_ELEVATOR;
     qInfo() << "Passenger in elevator:" << waitFloor << "->" << destinationFloor;
 }
@@ -24,3 +24,17 @@ void Passenger::done() {
 PassengerStatus Passenger::getStatus() {
     return status;
 }
+
+bool Passenger::isInElevator() {
+    return status == IN_ELEVATOR;
+}
+
+bool Passenger::isWaiting() {
+    return status == WAITING;
+}
+
+bool Passenger::isDone() {
+    return status == DONE;
+}
+
+
