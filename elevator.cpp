@@ -7,7 +7,7 @@
 #include "elevator.h"
 #include "elevatormanager.h"
 
-Elevator::Elevator(QString name, int minFloor, int maxFloor, QSlider *slider) {
+Elevator::Elevator(QString name, int minFloor, int maxFloor, QSlider *slider, unsigned long waitDuration) {
     this->name = std::move(name);
     this->minFloor = minFloor;
     this->maxFloor = maxFloor;
@@ -16,6 +16,7 @@ Elevator::Elevator(QString name, int minFloor, int maxFloor, QSlider *slider) {
     this->slider->setTickPosition(QSlider::TickPosition::TicksLeft);
     this->slider->setSingleStep(1);
     this->slider->setDisabled(true);
+    this->waitDuration = waitDuration;
     direction = STOP;
     currentFloor = 0;
     isReturning = false;
@@ -30,7 +31,7 @@ void Elevator::start() {
         direction = UP;
         qInfo() << "Elevator going up";
         while (currentFloor < destinationFloor) {
-            QThread::sleep(1);
+            QThread::msleep(waitDuration);
             slider->setValue(++currentFloor);
             qInfo() << "Elevator floor" << currentFloor;
             checkIfAnyPassengerIsInDestination();
@@ -41,7 +42,7 @@ void Elevator::start() {
         direction = DOWN;
         qInfo() << "Elevator going down";
         while (currentFloor > destinationFloor) {
-            QThread::sleep(1);
+            QThread::msleep(waitDuration);
             slider->setValue(--currentFloor);
             qInfo() << "Elevator floor" << currentFloor;
             checkIfAnyPassengerIsInDestination();
@@ -185,12 +186,12 @@ void Elevator::updateDestinationFloor() {
 
 void Elevator::openDoor() {
     qInfo() << "Door opening";
-    QThread::sleep(1);
+    QThread::msleep(waitDuration);
 }
 
 void Elevator::closeDoor() {
     qInfo() << "Door closing";
-    QThread::sleep(2);
+    QThread::msleep(2 * waitDuration);
 }
 
 Direction Elevator::getDirection() {

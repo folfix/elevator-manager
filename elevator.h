@@ -17,6 +17,7 @@ private:
     Direction direction;
     std::list<Passenger> passengers;
     bool isReturning;
+    unsigned long waitDuration;
 
     QSlider* slider;
     QTimer* timer;
@@ -36,7 +37,7 @@ private:
 
 
 public:
-    Elevator(QString name, int minFloor, int maxFloor, QSlider* slider);
+    Elevator(QString name, int minFloor, int maxFloor, QSlider* slider, unsigned long waitDuration = 1000);
     QString getName();
     int getMinFloor();
     int getMaxFloor();
