@@ -27,4 +27,4 @@ target_link_libraries(ElevatorManager Qt5::Widgets)
 target_link_libraries(ElevatorManager Qt5::Quick)
 target_link_libraries(ElevatorManager Qt5::Concurrent)
 
-
+add_subdirectory(tests)
