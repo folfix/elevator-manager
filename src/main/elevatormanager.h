@@ -15,27 +15,26 @@ class ElevatorManager : public QMainWindow {
 Q_OBJECT
 
 public:
-    explicit ElevatorManager(QWidget *parent = nullptr);
+    explicit ElevatorManager(unsigned long waitDuration = 600, QWidget *parent = nullptr);
 
     ~ElevatorManager() override;
 
     static const int GROUND_FLOOR_NUMBER = 0;
-
+    Elevator* addElevator(int minFloor, int maxFloor);
+    void callElevator(int from, int to);
 
 private:
     Ui::ElevatorManager *ui;
     std::list<Elevator *> elevators;
     std::list<QPushButton *> buttonsEntries;
     std::list<Passenger> passengers;
+    unsigned long waitDuration;
 
     int maxFloorOverall = GROUND_FLOOR_NUMBER;
 
-    void addElevator(int minFloor, int maxFloor);
-    void callElevator(int from, int to);
     void handlePassengers();
     void recalculateMinMaxFloor();
     void recalculateButtons();
-
     void openSettings();
 };
 

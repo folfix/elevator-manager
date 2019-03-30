@@ -3,10 +3,11 @@
 #include "ui_elevatormanager.h"
 #include "src/settings/settings.h"
 
-ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
+ElevatorManager::ElevatorManager(unsigned long waitDuration, QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
     ui->setupUi(this);
     this->setFixedSize(1250, 732);
     this->statusBar()->setSizeGripEnabled(false);
+    this->waitDuration = waitDuration;
 
     connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
 
@@ -19,7 +20,7 @@ ElevatorManager::~ElevatorManager() {
     delete ui;
 }
 
-void ElevatorManager::addElevator(int minFloor, int maxFloor) {
+Elevator* ElevatorManager::addElevator(int minFloor, int maxFloor) {
     this->maxFloorOverall = this->maxFloorOverall < maxFloor ? maxFloor : this->maxFloorOverall;
 
     auto lay = new QVBoxLayout();
@@ -33,7 +34,7 @@ void ElevatorManager::addElevator(int minFloor, int maxFloor) {
     lay->addWidget(slider);
     ui->elevatorsView->addLayout(lay);
 
-    auto elevator = new Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider, 400);
+    auto elevator = new Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider, waitDuration);
     connect(elevator, &Elevator::updateView, this, [=] { slider->setValue(elevator->getCurrentFloor()); });
     connect(elevator, &Elevator::updateView, this, [=] { lcd->display(elevator->getCurrentFloor()); });
     connect(elevator, &Elevator::finishedTransfer, this, [=] { handlePassengers(); });
@@ -42,6 +43,7 @@ void ElevatorManager::addElevator(int minFloor, int maxFloor) {
 
     recalculateMinMaxFloor();
     recalculateButtons();
+    return elevator;
 }
 
 void ElevatorManager::recalculateMinMaxFloor() {

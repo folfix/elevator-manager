@@ -21,6 +21,8 @@ void Passenger::done() {
     qInfo() << "Passenger has arrived:" << waitFloor << "->" << destinationFloor;
 }
 
+
+
 PassengerStatus Passenger::getStatus() {
     return status;
 }
@@ -35,6 +37,10 @@ bool Passenger::isWaiting() {
 
 bool Passenger::isDone() {
     return status == DONE;
+}
+
+bool operator==(const Passenger &lhs, const Passenger &rhs) {
+    return lhs.destinationFloor == rhs.destinationFloor && lhs.waitFloor == rhs.waitFloor;
 }
 
 

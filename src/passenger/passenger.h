@@ -22,6 +22,7 @@ public:
     bool isWaiting();
     bool isDone();
 
+    friend bool operator==(const Passenger & lhs, const Passenger & rhs);
 
 private:
     PassengerStatus status;

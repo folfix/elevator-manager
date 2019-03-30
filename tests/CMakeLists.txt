@@ -26,6 +26,10 @@ file(GLOB ElevatorManager_TESTS
         "../src/elevator/elevator.cpp"
         "../src/passenger/passenger.h"
         "../src/passenger/passenger.cpp"
+        "../src/main/elevatormanager.h"
+        "../src/main/elevatormanager.cpp"
+        "../src/settings/settings.h"
+        "../src/settings/settings.cpp"
         )
 
 add_executable(ElevatorManagerTests ${ElevatorManager_TESTS})
@@ -34,6 +38,7 @@ add_executable(ElevatorManagerTests ${ElevatorManager_TESTS})
 #link_directories(../)
 
 target_link_libraries(ElevatorManagerTests gtest gtest_main)
+target_link_libraries(ElevatorManagerTests gmock gmock_main)
 target_link_libraries(ElevatorManagerTests Threads::Threads)
 target_link_libraries(ElevatorManagerTests Qt5::Core)
 target_link_libraries(ElevatorManagerTests Qt5::Widgets)
