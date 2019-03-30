@@ -8,7 +8,6 @@
 #include "src/main/elevatormanager.h"
 
 
-
 Elevator::Elevator(QString name, int minFloor, int maxFloor, QProgressBar *slider, unsigned long waitDuration) {
     this->name = std::move(name);
     this->minFloor = minFloor;
@@ -57,6 +56,7 @@ void Elevator::start() {
         direction = STOP;
         passengers.clear();
         isReturning = false;
+        finishedTransfer();
     } else {
         isReturning = true;
         updateDestinationFloor();
@@ -104,9 +104,6 @@ void Elevator::checkIfAnyPassengerIsInDestination() {
                 passenger.done();
             }
         }
-//        std::remove_if(passengers.begin(), passengers.end(), [=](Passenger passenger) {
-//            return passenger.getStatus() == DONE;
-//        });
         closeDoor();
     }
 }
@@ -131,9 +128,6 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
                 passenger.goToElevator();
             }
         }
-//        std::remove_if(waitingPassengers.begin(), waitingPassengers.end(), [=](Passenger passenger) {
-//            return passenger.getStatus() == DONE;
-//        });
         updateDestinationFloor();
 
         if (!anyOneInDestination) {
@@ -143,8 +137,6 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
 }
 
 void Elevator::addPassenger(Passenger passenger) {
-    //handle dodanie kolejnego
-
     qInfo() << "Passenger is waiting for elevator at floor" << passenger.waitFloor;
 
     if (direction == STOP) {
@@ -154,22 +146,11 @@ void Elevator::addPassenger(Passenger passenger) {
         future = QtConcurrent::run([=] { start(); });
     }
 
-    if (direction == UP) {
-        if (passenger.getDirection() == UP) {
-            passengers.push_front(passenger);
-        } else {
-            qInfo() << "Don't add passenger that do not follow elevator direction";
-            exit(1);
-        }
-    }
-
-    if (direction == DOWN) {
-        if (passenger.getDirection() == DOWN) {
-            passengers.push_front(passenger);
-        } else {
-            qInfo() << "Don't add passenger that do not follow elevator direction";
-            exit(1);
-        }
+    if (canHandle(passenger)) {
+        passengers.push_front(passenger);
+    } else {
+        qInfo() << "Don't add passenger when it's not handled";
+        exit(1);
     }
 }
 
@@ -184,8 +165,7 @@ void Elevator::updateDestinationFloor() {
         if (currentFloor == highestDestinationFloor && destinationFloor == lowestDestinationFloor) {
             destinationFloor = currentFloor;
         } else {
-            destinationFloor =
-                    currentFloor < highestDestinationFloor ? highestDestinationFloor : lowestDestinationFloor;
+            destinationFloor =currentFloor < highestDestinationFloor ? highestDestinationFloor : lowestDestinationFloor;
         }
     } else {
         if (currentFloor == highestWaitingFloor && destinationFloor == lowestWaitingFloor) {
@@ -198,6 +178,14 @@ void Elevator::updateDestinationFloor() {
 }
 
 bool Elevator::canHandle(Passenger passenger) {
+    if (passenger.waitFloor != 0 && (passenger.waitFloor < minFloor || passenger.waitFloor > maxFloor)) {
+        return false;
+    }
+
+    if (passenger.destinationFloor != 0 && (passenger.destinationFloor < minFloor || passenger.destinationFloor > maxFloor)) {
+        return false;
+    }
+
     if (direction == STOP) {
         return true;
     }

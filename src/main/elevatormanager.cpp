@@ -10,8 +10,8 @@ ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new 
 
     connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
 
-    addElevator(0, 10);
-    addElevator(0, 10);
+    addElevator(0, 5);
+    addElevator(6, 10);
     addElevator(0, 10);
 }
 
@@ -36,6 +36,7 @@ void ElevatorManager::addElevator(int minFloor, int maxFloor) {
     auto elevator = new Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider, 400);
     connect(elevator, &Elevator::updateView, this, [=] { slider->setValue(elevator->getCurrentFloor()); });
     connect(elevator, &Elevator::updateView, this, [=] { lcd->display(elevator->getCurrentFloor()); });
+    connect(elevator, &Elevator::finishedTransfer, this, [=] { handlePassengers(); });
 
     this->elevators.push_front(elevator);
 
@@ -74,18 +75,16 @@ void ElevatorManager::recalculateButtons() {
 }
 
 void ElevatorManager::callElevator(int from, int to) {
-    qInfo() << "Called elevator:" << from << "->" << to;
     const Passenger &passenger = Passenger(from, to);
-    passengers.push_back(passenger);
+    passengers.push_front(passenger);
+    qInfo() << "Called elevator:" << from << "->" << to << "[passengersCount:" << passengers.size() << "]";
     handlePassengers();
 }
 
 void ElevatorManager::handlePassengers() {
-//    for (auto &passenger : this->passengers) {
-
+    qInfo() << "Invoked handlePassengers()";
     auto passenger = passengers.begin();
     while (passenger != passengers.end()) {
-
         std::list<Elevator *> availableElevators;
         std::copy_if(elevators.begin(), elevators.end(), std::back_inserter(availableElevators),
                      [=](Elevator *e) { return e->canHandle(*passenger); });

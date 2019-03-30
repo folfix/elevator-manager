@@ -13,6 +13,7 @@ Q_OBJECT
 
 signals:
     void updateView();
+    void finishedTransfer();
 
 private:
     QString name;
