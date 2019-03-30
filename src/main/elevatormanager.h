@@ -24,7 +24,7 @@ public:
 
 private:
     Ui::ElevatorManager *ui;
-    std::list<Elevator> elevators;
+    std::list<Elevator *> elevators;
     std::list<QPushButton *> buttonsEntries;
 
     int maxFloorOverall = GROUND_FLOOR_NUMBER;

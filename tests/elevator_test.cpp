@@ -33,7 +33,7 @@ protected:
 };
 
 TEST_F(ElevatorTest, testInit) {
-    auto *slider = new QSlider();
+    auto *slider = new QProgressBar();
     auto *elevator = new Elevator(QString("testInit"), 0, 10, slider);
 
     EXPECT_EQ(elevator->getMinFloor(), 0);
@@ -42,7 +42,7 @@ TEST_F(ElevatorTest, testInit) {
 }
 
 TEST_F(ElevatorTest, testAddPassengerGoingUpWhenElevatorIsLower) {
-    auto *slider = new QSlider();
+    auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
     auto passenger = Passenger(2, 4);
 
@@ -71,7 +71,7 @@ TEST_F(ElevatorTest, testAddPassengerGoingUpWhenElevatorIsLower) {
 }
 
 TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsLower) {
-    auto *slider = new QSlider();
+    auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
     auto passenger = Passenger(4, 2);
 
@@ -104,7 +104,7 @@ TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsLower) {
 }
 
 TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsOnTheSameFloor) {
-    auto *slider = new QSlider();
+    auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
     auto passenger = Passenger(0, 2);
 
@@ -129,7 +129,7 @@ TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsOnTheSameFloor) {
 }
 
 TEST_F(ElevatorTest, testAddSecondPassager) {
-    auto *slider = new QSlider();
+    auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
     auto passenger1 = Passenger(0, 5);
     auto passenger2 = Passenger(3, 4);
@@ -171,7 +171,7 @@ TEST_F(ElevatorTest, testAddSecondPassager) {
 }
 
 TEST_F(ElevatorTest, testAddThreePassagers) {
-    auto *slider = new QSlider();
+    auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
     auto passenger1 = Passenger(0, 5);
     auto passenger2 = Passenger(3, 4);

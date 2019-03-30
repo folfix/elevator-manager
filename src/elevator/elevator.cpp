@@ -7,15 +7,13 @@
 #include "elevator.h"
 #include "src/main/elevatormanager.h"
 
-Elevator::Elevator(QString name, int minFloor, int maxFloor, QSlider *slider, unsigned long waitDuration) {
+Elevator::Elevator(QString name, int minFloor, int maxFloor, QProgressBar *slider, unsigned long waitDuration) {
     this->name = std::move(name);
     this->minFloor = minFloor;
     this->maxFloor = maxFloor;
     this->slider = slider;
     this->slider->setMinimum(ElevatorManager::GROUND_FLOOR_NUMBER);
-    this->slider->setTickPosition(QSlider::TickPosition::TicksLeft);
-    this->slider->setSingleStep(1);
-    this->slider->setDisabled(true);
+    this->slider->setOrientation(Qt::Orientation::Vertical);
     this->waitDuration = waitDuration;
     direction = STOP;
     currentFloor = 0;
@@ -32,7 +30,8 @@ void Elevator::start() {
         qInfo() << "Elevator going up";
         while (currentFloor < destinationFloor) {
             QThread::msleep(waitDuration);
-            slider->setValue(++currentFloor);
+            currentFloor++;
+            updateView();
             qInfo() << "Elevator floor" << currentFloor;
             checkIfAnyPassengerIsInDestination();
             checkIfAnyPassengerWantsGetIn();
@@ -43,7 +42,8 @@ void Elevator::start() {
         qInfo() << "Elevator going down";
         while (currentFloor > destinationFloor) {
             QThread::msleep(waitDuration);
-            slider->setValue(--currentFloor);
+            currentFloor--;
+            updateView();
             qInfo() << "Elevator floor" << currentFloor;
             checkIfAnyPassengerIsInDestination();
             checkIfAnyPassengerWantsGetIn();

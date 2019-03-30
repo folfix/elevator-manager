@@ -10,7 +10,11 @@ ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new 
 
     connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
 
-    addElevator(0, 15);
+    addElevator(0, 10);
+    addElevator(0, 10);
+    addElevator(0, 10);
+    addElevator(0, 10);
+    addElevator(0, 10);
 }
 
 ElevatorManager::~ElevatorManager() {
@@ -20,10 +24,11 @@ ElevatorManager::~ElevatorManager() {
 void ElevatorManager::addElevator(int minFloor, int maxFloor) {
     this->maxFloorOverall = this->maxFloorOverall < maxFloor ? maxFloor : this->maxFloorOverall;
 
-    auto *slider = new QSlider();
+    auto *slider = new QProgressBar();
     ui->elevatorsView->addWidget(slider);
+    auto elevator = new Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider, 400);
+    connect(elevator, &Elevator::updateView, this, [=] { slider->setValue(elevator->getCurrentFloor()); });
 
-    auto elevator = Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider, 400);
     this->elevators.push_front(elevator);
 
     recalculateMinMaxFloor();
@@ -32,7 +37,7 @@ void ElevatorManager::addElevator(int minFloor, int maxFloor) {
 
 void ElevatorManager::recalculateMinMaxFloor() {
     for (auto &elevator : this->elevators) {
-        elevator.rerender(this->maxFloorOverall);
+        elevator->rerender(this->maxFloorOverall);
     }
 }
 
@@ -68,7 +73,7 @@ void ElevatorManager::callElevator(int from, int to) {
 
 
     for (auto &elevator : this->elevators) {
-        elevator.addPassenger(Passenger(from, to));
+        elevator->addPassenger(Passenger(from, to));
     }
 }
 

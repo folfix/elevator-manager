@@ -4,10 +4,16 @@
 #include <QSlider>
 #include <QString>
 #include <QFuture>
+#include <QtWidgets/QProgressBar>
 #include "direction.h"
 #include "../passenger/passenger.h"
 
-class Elevator {
+class Elevator : public QObject {
+Q_OBJECT
+
+signals:
+    void updateView();
+
 private:
     QString name;
 
@@ -20,32 +26,46 @@ private:
     bool isReturning;
     unsigned long waitDuration;
 
-    QSlider* slider;
+//    QSlider* slider;
+    QProgressBar *slider;
     QFuture<void> future;
 
-    QTimer* timer;
+    QTimer *timer;
+
     void start();
+
     void openDoor();
+
     void closeDoor();
 
     void checkIfAnyPassengerIsInDestination();
+
     void checkIfAnyPassengerWantsGetIn();
 
     int getLowestDestinationFloor();
+
     int getHighestDestinationFloor();
+
     int getLowestWaitingFloor();
+
     int getHighestWaitingFloor();
 
     void updateDestinationFloor();
 
 
 public:
-    Elevator(QString name, int minFloor, int maxFloor, QSlider* slider, unsigned long waitDuration = 1000);
+    Elevator(QString name, int minFloor, int maxFloor, QProgressBar *slider, unsigned long waitDuration = 1000);
+
     QString getName();
+
     int getMinFloor();
+
     int getMaxFloor();
+
     int getCurrentFloor();
+
     void rerender(int maxFloor);
+
     Direction getDirection();
 
     void addPassenger(Passenger passenger);
