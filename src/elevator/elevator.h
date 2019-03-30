@@ -26,11 +26,9 @@ private:
     bool isReturning;
     unsigned long waitDuration;
 
-//    QSlider* slider;
     QProgressBar *slider;
     QFuture<void> future;
 
-    QTimer *timer;
 
     void start();
 
@@ -69,6 +67,8 @@ public:
     Direction getDirection();
 
     void addPassenger(Passenger passenger);
+
+    bool canHandle(Passenger passenger);
 
     void forceStop();
 };

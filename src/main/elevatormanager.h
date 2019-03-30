@@ -26,11 +26,13 @@ private:
     Ui::ElevatorManager *ui;
     std::list<Elevator *> elevators;
     std::list<QPushButton *> buttonsEntries;
+    std::list<Passenger> passengers;
 
     int maxFloorOverall = GROUND_FLOOR_NUMBER;
 
     void addElevator(int minFloor, int maxFloor);
     void callElevator(int from, int to);
+    void handlePassengers();
     void recalculateMinMaxFloor();
     void recalculateButtons();
 

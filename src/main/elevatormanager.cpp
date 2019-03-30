@@ -1,17 +1,15 @@
+#include <QtWidgets/QLCDNumber>
 #include "elevatormanager.h"
 #include "ui_elevatormanager.h"
 #include "src/settings/settings.h"
-#include "qdebug.h"
 
 ElevatorManager::ElevatorManager(QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
     ui->setupUi(this);
-    this->setFixedSize(1100, 600);
+    this->setFixedSize(1250, 732);
     this->statusBar()->setSizeGripEnabled(false);
 
     connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
 
-    addElevator(0, 10);
-    addElevator(0, 10);
     addElevator(0, 10);
     addElevator(0, 10);
     addElevator(0, 10);
@@ -24,10 +22,20 @@ ElevatorManager::~ElevatorManager() {
 void ElevatorManager::addElevator(int minFloor, int maxFloor) {
     this->maxFloorOverall = this->maxFloorOverall < maxFloor ? maxFloor : this->maxFloorOverall;
 
+    auto lay = new QVBoxLayout();
+    auto lcd = new QLCDNumber();
+    lcd->setFixedHeight(40);
+    lcd->setFixedWidth(25);
+    lcd->setDigitCount(2);
+    lcd->setSegmentStyle(QLCDNumber::SegmentStyle::Flat);
+    lay->addWidget(lcd);
     auto *slider = new QProgressBar();
-    ui->elevatorsView->addWidget(slider);
+    lay->addWidget(slider);
+    ui->elevatorsView->addLayout(lay);
+
     auto elevator = new Elevator(QString::number(elevators.size()), minFloor, maxFloor, slider, 400);
     connect(elevator, &Elevator::updateView, this, [=] { slider->setValue(elevator->getCurrentFloor()); });
+    connect(elevator, &Elevator::updateView, this, [=] { lcd->display(elevator->getCurrentFloor()); });
 
     this->elevators.push_front(elevator);
 
@@ -67,13 +75,35 @@ void ElevatorManager::recalculateButtons() {
 
 void ElevatorManager::callElevator(int from, int to) {
     qInfo() << "Called elevator:" << from << "->" << to;
+    const Passenger &passenger = Passenger(from, to);
+    passengers.push_back(passenger);
+    handlePassengers();
+}
 
-    // jadące w kiedynku docelowym i po drodze
-    // windy STOP najbliższe pasażerowi
+void ElevatorManager::handlePassengers() {
+//    for (auto &passenger : this->passengers) {
 
+    auto passenger = passengers.begin();
+    while (passenger != passengers.end()) {
 
-    for (auto &elevator : this->elevators) {
-        elevator->addPassenger(Passenger(from, to));
+        std::list<Elevator *> availableElevators;
+        std::copy_if(elevators.begin(), elevators.end(), std::back_inserter(availableElevators),
+                     [=](Elevator *e) { return e->canHandle(*passenger); });
+
+        if (!availableElevators.empty()) {
+            Elevator *closestElevator = availableElevators.front();
+            for (auto &elevator : availableElevators) {
+                int oldDistance = abs(closestElevator->getCurrentFloor() - passenger->waitFloor);
+                int distance = abs(elevator->getCurrentFloor() - passenger->waitFloor);
+                if (distance < oldDistance) {
+                    closestElevator = elevator;
+                }
+            }
+            closestElevator->addPassenger(*passenger);
+            passenger = passengers.erase(passenger);
+        } else {
+            passenger++;
+        }
     }
 }
 

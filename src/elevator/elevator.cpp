@@ -7,6 +7,8 @@
 #include "elevator.h"
 #include "src/main/elevatormanager.h"
 
+
+
 Elevator::Elevator(QString name, int minFloor, int maxFloor, QProgressBar *slider, unsigned long waitDuration) {
     this->name = std::move(name);
     this->minFloor = minFloor;
@@ -193,6 +195,20 @@ void Elevator::updateDestinationFloor() {
         }
     }
     qInfo() << "Calculated destination floor as" << destinationFloor;
+}
+
+bool Elevator::canHandle(Passenger passenger) {
+    if (direction == STOP) {
+        return true;
+    }
+
+    if (direction == UP) {
+        return passenger.getDirection() == UP;
+    }
+
+    if (direction == DOWN) {
+        return passenger.getDirection() == DOWN;
+    }
 }
 
 void Elevator::openDoor() {
