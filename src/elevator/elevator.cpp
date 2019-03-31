@@ -65,43 +65,43 @@ void Elevator::start() {
 }
 
 int Elevator::getLowestWaitingFloor() {
-    Passenger min = *std::min_element(passengers.begin(), passengers.end(), [=](Passenger a, Passenger b) {
-        return (a.waitFloor < b.waitFloor);
+    Passenger *min = *std::min_element(passengers.begin(), passengers.end(), [=](Passenger *a, Passenger *b) {
+        return (a->getWaitFloor() < b->getWaitFloor());
     });
-    return min.waitFloor;
+    return min->getWaitFloor();
 }
 
 int Elevator::getHighestWaitingFloor() {
-    Passenger max = *std::max_element(passengers.begin(), passengers.end(), [=](Passenger a, Passenger b) {
-        return (a.waitFloor < b.waitFloor);
+    Passenger *max = *std::max_element(passengers.begin(), passengers.end(), [=](Passenger *a, Passenger *b) {
+        return (a->getWaitFloor() < b->getWaitFloor());
     });
-    return max.waitFloor;
+    return max->getWaitFloor();
 }
 
 int Elevator::getLowestDestinationFloor() {
-    Passenger min = *std::min_element(passengers.begin(), passengers.end(), [=](Passenger a, Passenger b) {
-        return (a.destinationFloor < b.destinationFloor);
+    Passenger *min = *std::min_element(passengers.begin(), passengers.end(), [=](Passenger *a, Passenger *b) {
+        return (a->getDestinationFloor() < b->getDestinationFloor());
     });
-    return min.destinationFloor;
+    return min->getDestinationFloor();
 }
 
 int Elevator::getHighestDestinationFloor() {
-    Passenger max = *std::max_element(passengers.begin(), passengers.end(), [=](Passenger a, Passenger b) {
-        return (a.destinationFloor < b.destinationFloor);
+    Passenger *max = *std::max_element(passengers.begin(), passengers.end(), [=](Passenger *a, Passenger *b) {
+        return (a->getDestinationFloor() < b->getDestinationFloor());
     });
-    return max.destinationFloor;
+    return max->getDestinationFloor();
 }
 
 void Elevator::checkIfAnyPassengerIsInDestination() {
-    bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger passenger) {
-        return passenger.isInElevator() && currentFloor == passenger.destinationFloor;
+    bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger *passenger) {
+        return passenger->isInElevator() && currentFloor == passenger->getDestinationFloor();
     });
 
     if (anyOneInDestination) {
         openDoor();
         for (auto &passenger : passengers) {
-            if (passenger.isInElevator() && currentFloor == passenger.destinationFloor) {
-                passenger.done();
+            if (passenger->isInElevator() && currentFloor == passenger->getDestinationFloor()) {
+                passenger->done();
             }
         }
         closeDoor();
@@ -109,12 +109,12 @@ void Elevator::checkIfAnyPassengerIsInDestination() {
 }
 
 void Elevator::checkIfAnyPassengerWantsGetIn() {
-    bool anyOneWantsGetIn = std::any_of(passengers.begin(), passengers.end(), [=](Passenger passenger) {
-        return passenger.isWaiting() && currentFloor == passenger.waitFloor;
+    bool anyOneWantsGetIn = std::any_of(passengers.begin(), passengers.end(), [=](Passenger * passenger) {
+        return passenger->isWaiting(currentFloor);
     });
 
-    bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger passenger) {
-        return currentFloor == passenger.destinationFloor;
+    bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger * passenger) {
+        return currentFloor == passenger->getDestinationFloor();
     });
 
     if (anyOneWantsGetIn) {
@@ -122,10 +122,9 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
             openDoor();
         }
 
-
         for (auto &passenger : passengers) {
-            if (passenger.isWaiting() && currentFloor == passenger.waitFloor) {
-                passenger.goToElevator();
+            if (passenger->isWaiting(currentFloor)) {
+                passenger->goToElevator();
             }
         }
         updateDestinationFloor();
@@ -136,12 +135,12 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
     }
 }
 
-void Elevator::addPassenger(Passenger passenger) {
-    qInfo() << "Passenger is waiting for elevator at floor" << passenger.waitFloor;
+void Elevator::addPassenger(Passenger *passenger) {
+    qInfo() << "Passenger is waiting for elevator at floor" << passenger->getWaitFloor();
 
     if (direction == STOP) {
         passengers.push_front(passenger);
-        destinationFloor = passenger.waitFloor;
+        destinationFloor = passenger->getWaitFloor();
         updateDestinationFloor();
         future = QtConcurrent::run([=] { start(); });
     }
@@ -165,7 +164,8 @@ void Elevator::updateDestinationFloor() {
         if (currentFloor == highestDestinationFloor && destinationFloor == lowestDestinationFloor) {
             destinationFloor = currentFloor;
         } else {
-            destinationFloor =currentFloor < highestDestinationFloor ? highestDestinationFloor : lowestDestinationFloor;
+            destinationFloor =
+                    currentFloor < highestDestinationFloor ? highestDestinationFloor : lowestDestinationFloor;
         }
     } else {
         if (currentFloor == highestWaitingFloor && destinationFloor == lowestWaitingFloor) {
@@ -177,12 +177,14 @@ void Elevator::updateDestinationFloor() {
     qInfo() << "Calculated destination floor as" << destinationFloor;
 }
 
-bool Elevator::canHandle(Passenger passenger) {
-    if (passenger.waitFloor != 0 && (passenger.waitFloor < minFloor || passenger.waitFloor > maxFloor)) {
+bool Elevator::canHandle(Passenger *passenger) {
+    if (passenger->getWaitFloor() != 0 &&
+        (passenger->getWaitFloor() < minFloor || passenger->getWaitFloor() > maxFloor)) {
         return false;
     }
 
-    if (passenger.destinationFloor != 0 && (passenger.destinationFloor < minFloor || passenger.destinationFloor > maxFloor)) {
+    if (passenger->getDestinationFloor() != 0 &&
+        (passenger->getDestinationFloor() < minFloor || passenger->getDestinationFloor() > maxFloor)) {
         return false;
     }
 
@@ -191,11 +193,11 @@ bool Elevator::canHandle(Passenger passenger) {
     }
 
     if (direction == UP) {
-        return passenger.getDirection() == UP;
+        return passenger->getDirection() == UP;
     }
 
     if (direction == DOWN) {
-        return passenger.getDirection() == DOWN;
+        return passenger->getDirection() == DOWN;
     }
 }
 
@@ -207,6 +209,7 @@ void Elevator::openDoor() {
 void Elevator::closeDoor() {
     qInfo() << "Door closing";
     QThread::msleep(2 * waitDuration);
+    pickedUpPassager();
 }
 
 Direction Elevator::getDirection() {

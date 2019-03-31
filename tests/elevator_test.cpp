@@ -29,7 +29,7 @@ protected:
         this->waitBetweenFloors();
     }
 
-    __useconds_t waitTime = 1;
+    __useconds_t waitTime = 10;
 };
 
 TEST_F(ElevatorTest, testInit) {
@@ -44,7 +44,7 @@ TEST_F(ElevatorTest, testInit) {
 TEST_F(ElevatorTest, testAddPassengerGoingUpWhenElevatorIsLower) {
     auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
-    auto passenger = Passenger(2, 4);
+    auto *passenger = new Passenger(2, 4);
 
     EXPECT_EQ(elevator->getDirection(), STOP);
     elevator->addPassenger(passenger);
@@ -73,7 +73,7 @@ TEST_F(ElevatorTest, testAddPassengerGoingUpWhenElevatorIsLower) {
 TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsLower) {
     auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
-    auto passenger = Passenger(4, 2);
+    auto *passenger = new Passenger(4, 2);
 
     EXPECT_EQ(elevator->getDirection(), STOP);
     elevator->addPassenger(passenger);
@@ -106,7 +106,7 @@ TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsLower) {
 TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsOnTheSameFloor) {
     auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
-    auto passenger = Passenger(0, 2);
+    auto *passenger = new Passenger(0, 2);
 
     EXPECT_EQ(elevator->getDirection(), STOP);
     elevator->addPassenger(passenger);
@@ -131,8 +131,8 @@ TEST_F(ElevatorTest, testAddPassengerGoingDownWhenElevatorIsOnTheSameFloor) {
 TEST_F(ElevatorTest, testAddSecondPassager) {
     auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
-    auto passenger1 = Passenger(0, 5);
-    auto passenger2 = Passenger(3, 4);
+    auto *passenger1 = new Passenger(0, 5);
+    auto *passenger2 = new Passenger(3, 4);
 
     EXPECT_EQ(elevator->getDirection(), STOP);
     elevator->addPassenger(passenger1);
@@ -173,9 +173,9 @@ TEST_F(ElevatorTest, testAddSecondPassager) {
 TEST_F(ElevatorTest, testAddThreePassagers) {
     auto *slider = new QProgressBar();
     auto elevator = new Elevator(QString("testAddPassenger"), 0, 10, slider, waitTime);
-    auto passenger1 = Passenger(0, 5);
-    auto passenger2 = Passenger(3, 4);
-    auto passenger3 = Passenger(4, 8);
+    auto *passenger1 = new Passenger(0, 5);
+    auto *passenger2 = new Passenger(3, 4);
+    auto *passenger3 = new Passenger(4, 8);
 
     EXPECT_EQ(elevator->getDirection(), STOP);
     elevator->addPassenger(passenger1);

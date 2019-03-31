@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QLabel>
 
 namespace Ui {
     class ElevatorManager;
@@ -13,6 +14,9 @@ namespace Ui {
 
 class ElevatorManager : public QMainWindow {
 Q_OBJECT
+
+signals:
+    void passangerRequestedElevator();
 
 public:
     explicit ElevatorManager(unsigned long waitDuration = 600, QWidget *parent = nullptr);
@@ -27,7 +31,8 @@ private:
     Ui::ElevatorManager *ui;
     std::list<Elevator *> elevators;
     std::list<QPushButton *> buttonsEntries;
-    std::list<Passenger> passengers;
+    std::list<QLabel *> labels;
+    std::list<Passenger *> passengers;
     unsigned long waitDuration;
 
     int maxFloorOverall = GROUND_FLOOR_NUMBER;
@@ -36,6 +41,7 @@ private:
     void recalculateMinMaxFloor();
     void recalculateButtons();
     void openSettings();
+    int waitingPassengers(int floor);
 };
 
 #endif // ELEVATORMANAGER_H

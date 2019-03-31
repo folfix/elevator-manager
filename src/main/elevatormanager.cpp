@@ -3,7 +3,8 @@
 #include "ui_elevatormanager.h"
 #include "src/settings/settings.h"
 
-ElevatorManager::ElevatorManager(unsigned long waitDuration, QWidget *parent) : QMainWindow(parent), ui(new Ui::ElevatorManager) {
+ElevatorManager::ElevatorManager(unsigned long waitDuration, QWidget *parent) : QMainWindow(parent),
+                                                                                ui(new Ui::ElevatorManager) {
     ui->setupUi(this);
     this->setFixedSize(1250, 732);
     this->statusBar()->setSizeGripEnabled(false);
@@ -20,7 +21,7 @@ ElevatorManager::~ElevatorManager() {
     delete ui;
 }
 
-Elevator* ElevatorManager::addElevator(int minFloor, int maxFloor) {
+Elevator *ElevatorManager::addElevator(int minFloor, int maxFloor) {
     this->maxFloorOverall = this->maxFloorOverall < maxFloor ? maxFloor : this->maxFloorOverall;
 
     auto lay = new QVBoxLayout();
@@ -38,6 +39,7 @@ Elevator* ElevatorManager::addElevator(int minFloor, int maxFloor) {
     connect(elevator, &Elevator::updateView, this, [=] { slider->setValue(elevator->getCurrentFloor()); });
     connect(elevator, &Elevator::updateView, this, [=] { lcd->display(elevator->getCurrentFloor()); });
     connect(elevator, &Elevator::finishedTransfer, this, [=] { handlePassengers(); });
+    connect(elevator, &Elevator::pickedUpPassager, this, [=] { handlePassengers(); });
 
     this->elevators.push_front(elevator);
 
@@ -59,6 +61,12 @@ void ElevatorManager::recalculateButtons() {
 
     buttonsEntries.clear();
 
+    for (auto &l : labels) {
+        delete l;
+    }
+
+    labels.clear();
+
     for (int fromFloor = maxFloorOverall; fromFloor >= GROUND_FLOOR_NUMBER; fromFloor--) {
         auto lay = new QHBoxLayout();
         lay->setObjectName("Layout" + QString::number(fromFloor));
@@ -73,11 +81,19 @@ void ElevatorManager::recalculateButtons() {
             buttonsEntries.push_front(button);
         }
         ui->buttonsView->addLayout(lay);
+
+        auto *label = new QLabel();
+        label->setText(QString("0"));
+        ui->waitingList->addWidget(label);
+        labels.push_front(label);
+        connect(this, &ElevatorManager::passangerRequestedElevator, label, [=] {
+            label->setText(QString::number(waitingPassengers(fromFloor)));
+        });
     }
 }
 
 void ElevatorManager::callElevator(int from, int to) {
-    const Passenger &passenger = Passenger(from, to);
+    auto *passenger = new Passenger(from, to);
     passengers.push_front(passenger);
     qInfo() << "Called elevator:" << from << "->" << to << "[passengersCount:" << passengers.size() << "]";
     handlePassengers();
@@ -85,23 +101,23 @@ void ElevatorManager::callElevator(int from, int to) {
 
 void ElevatorManager::handlePassengers() {
     qInfo() << "Invoked handlePassengers()";
-    auto passenger = passengers.begin();
-    while (passenger != passengers.end()) {
+    passangerRequestedElevator();
+    for (auto passenger : passengers) {
         std::list<Elevator *> availableElevators;
         std::copy_if(elevators.begin(), elevators.end(), std::back_inserter(availableElevators),
-                     [=](Elevator *e) { return e->canHandle(*passenger); });
+                     [=](Elevator *e) { return e->canHandle(passenger); });
 
-        if (!availableElevators.empty()) {
+        if (passenger->hasNotAllocatedElevator() && !availableElevators.empty()) {
             Elevator *closestElevator = availableElevators.front();
             for (auto &elevator : availableElevators) {
-                int oldDistance = abs(closestElevator->getCurrentFloor() - passenger->waitFloor);
-                int distance = abs(elevator->getCurrentFloor() - passenger->waitFloor);
+                int oldDistance = abs(closestElevator->getCurrentFloor() - passenger->getWaitFloor());
+                int distance = abs(elevator->getCurrentFloor() - passenger->getWaitFloor());
                 if (distance < oldDistance) {
                     closestElevator = elevator;
                 }
             }
-            closestElevator->addPassenger(*passenger);
-            passenger = passengers.erase(passenger);
+            closestElevator->addPassenger(passenger);
+            passenger->elevatorAllocated();
         } else {
             passenger++;
         }
@@ -111,4 +127,14 @@ void ElevatorManager::handlePassengers() {
 void ElevatorManager::openSettings() {
     auto *dialog = new Settings(this);
     dialog->exec();
+}
+
+int ElevatorManager::waitingPassengers(int floor) {
+    int count = 0;
+    for (auto passenger : passengers) {
+        if (passenger->isWaiting(floor)) {
+            count++;
+        }
+    }
+    return count;
 }

@@ -14,6 +14,7 @@ Q_OBJECT
 signals:
     void updateView();
     void finishedTransfer();
+    void pickedUpPassager();
 
 private:
     QString name;
@@ -23,7 +24,7 @@ private:
     int currentFloor;
     int destinationFloor;
     Direction direction;
-    std::list<Passenger> passengers;
+    std::list<Passenger *> passengers;
     bool isReturning;
     unsigned long waitDuration;
 
@@ -67,9 +68,9 @@ public:
 
     Direction getDirection();
 
-    void addPassenger(Passenger passenger);
+    void addPassenger(Passenger* passenger);
 
-    bool canHandle(Passenger passenger);
+    bool canHandle(Passenger* passenger);
 
     void forceStop();
 };

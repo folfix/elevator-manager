@@ -4,28 +4,39 @@
 #include "src/elevator/direction.h"
 
 
-enum PassengerStatus {WAITING, IN_ELEVATOR, DONE};
+enum PassengerStatus {NEW, WAITING_FOR_ELEVATOR, IN_ELEVATOR, DONE};
 
 class Passenger {
-public:
-    Passenger(int waitFloor, int destinationFloor);
 
+private:
+    PassengerStatus status;
     int waitFloor;
     int destinationFloor;
 
+public:
+    Passenger(int waitFloor, int destinationFloor);
+
+    //TODO make private
+    //TODO dokumentacja doxygen
+
     void goToElevator();
     void done();
-    PassengerStatus getStatus();
+    void elevatorAllocated();
+
     Direction getDirection();
 
-    bool isInElevator();
     bool isWaiting();
+    bool isWaiting(int floor);
+    bool isInElevator();
+    bool hasNotAllocatedElevator();
+
     bool isDone();
 
     friend bool operator==(const Passenger & lhs, const Passenger & rhs);
 
-private:
-    PassengerStatus status;
+    int getWaitFloor();
+    int getDestinationFloor();
+
 };
 
 #endif // PASSENGER_H
