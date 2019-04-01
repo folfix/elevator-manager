@@ -4,6 +4,10 @@
 #include "../src/passenger/passenger.h"
 #include "src/elevator/direction.h"
 
+/**
+ * Notice that sometimes tests fails because it's real-time system.
+ * I such situation re-run tests.
+ */
 class ElevatorTest : public ::testing::Test {
 protected:
     void SetUp() override {
@@ -29,7 +33,7 @@ protected:
         this->waitBetweenFloors();
     }
 
-    __useconds_t waitTime = 10;
+    __useconds_t waitTime = 1;
 };
 
 TEST_F(ElevatorTest, testInit) {

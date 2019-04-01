@@ -17,17 +17,17 @@ Direction Passenger::getDirection() {
 
 void Passenger::goToElevator() {
     status = IN_ELEVATOR;
-    qInfo() << "Passenger in elevator:" << waitFloor << "->" << destinationFloor;
+    qInfo() << "[P]" <<"Passenger in elevator:" << waitFloor << "->" << destinationFloor;
 }
 
 void Passenger::done() {
     status = DONE;
-    qInfo() << "Passenger has arrived:" << waitFloor << "->" << destinationFloor;
+    qInfo() << "[P]" <<"Passenger has arrived:" << waitFloor << "->" << destinationFloor;
 }
 
 void Passenger::elevatorAllocated() {
     status = WAITING_FOR_ELEVATOR;
-    qInfo() << "Passenger waits for allocated elevator";
+    qInfo() << "[P]" <<"Passenger waits for allocated elevator";
 }
 
 bool Passenger::isInElevator() {
@@ -50,9 +50,6 @@ bool Passenger::isDone() {
     return status == DONE;
 }
 
-bool operator==(const Passenger &lhs, const Passenger &rhs) {
-    return lhs.destinationFloor == rhs.destinationFloor && lhs.waitFloor == rhs.waitFloor;
-}
 
 int Passenger::getWaitFloor() {
     return waitFloor;
@@ -62,4 +59,11 @@ int Passenger::getDestinationFloor() {
     return destinationFloor;
 }
 
+bool operator==(const Passenger &lhs, const Passenger &rhs) {
+    return lhs.destinationFloor == rhs.destinationFloor && lhs.waitFloor == rhs.waitFloor;
+}
 
+QDebug& operator<< (QDebug& stream, const Passenger& p) {
+    stream << "Passenger[waitFloor:" << p.waitFloor << ",destFloor:" << p.destinationFloor << ",status:" << p.status << "]";
+    return stream;
+}

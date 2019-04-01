@@ -23,36 +23,36 @@ Elevator::Elevator(QString name, int minFloor, int maxFloor, QProgressBar *slide
 
 void Elevator::start() {
     if (currentFloor == destinationFloor) {
-        qInfo() << "Elevator on destination floor";
+        qInfo() << "[E]" << "Elevator on destination floor";
         checkIfAnyPassengerIsInDestination();
         checkIfAnyPassengerWantsGetIn();
     } else if (currentFloor < destinationFloor) {
         direction = UP;
-        qInfo() << "Elevator going up";
+        qInfo() << "[E]" << "Elevator going up";
         while (currentFloor < destinationFloor) {
             QThread::msleep(waitDuration);
             currentFloor++;
             updateView();
-            qInfo() << "Elevator floor" << currentFloor;
+            qInfo() << "[E]" << "Elevator floor" << currentFloor;
             checkIfAnyPassengerIsInDestination();
             checkIfAnyPassengerWantsGetIn();
         }
 
     } else {
         direction = DOWN;
-        qInfo() << "Elevator going down";
+        qInfo() << "[E]" << "Elevator going down";
         while (currentFloor > destinationFloor) {
             QThread::msleep(waitDuration);
             currentFloor--;
             updateView();
-            qInfo() << "Elevator floor" << currentFloor;
+            qInfo() << "[E]" << "Elevator floor" << currentFloor;
             checkIfAnyPassengerIsInDestination();
             checkIfAnyPassengerWantsGetIn();
         }
     }
 
     if (isReturning) {
-        qInfo() << "Elevator reached destination floor" << destinationFloor;
+        qInfo() << "[E]" << "Elevator reached destination floor" << destinationFloor;
         direction = STOP;
         passengers.clear();
         isReturning = false;
@@ -109,11 +109,11 @@ void Elevator::checkIfAnyPassengerIsInDestination() {
 }
 
 void Elevator::checkIfAnyPassengerWantsGetIn() {
-    bool anyOneWantsGetIn = std::any_of(passengers.begin(), passengers.end(), [=](Passenger * passenger) {
+    bool anyOneWantsGetIn = std::any_of(passengers.begin(), passengers.end(), [=](Passenger *passenger) {
         return passenger->isWaiting(currentFloor);
     });
 
-    bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger * passenger) {
+    bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger *passenger) {
         return currentFloor == passenger->getDestinationFloor();
     });
 
@@ -136,20 +136,18 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
 }
 
 void Elevator::addPassenger(Passenger *passenger) {
-    qInfo() << "Passenger is waiting for elevator at floor" << passenger->getWaitFloor();
+    qInfo() << "[E]" << "Passenger is waiting for elevator at floor" << passenger->getWaitFloor();
+
+    if (!canHandle(passenger)) {
+        throw std::invalid_argument("Don't add passenger when it's not handled");
+    }
+
+    passengers.push_front(passenger);
 
     if (direction == STOP) {
-        passengers.push_front(passenger);
         destinationFloor = passenger->getWaitFloor();
         updateDestinationFloor();
         future = QtConcurrent::run([=] { start(); });
-    }
-
-    if (canHandle(passenger)) {
-        passengers.push_front(passenger);
-    } else {
-        qInfo() << "Don't add passenger when it's not handled";
-        exit(1);
     }
 }
 
@@ -174,7 +172,7 @@ void Elevator::updateDestinationFloor() {
             destinationFloor = currentFloor < highestWaitingFloor ? highestWaitingFloor : lowestWaitingFloor;
         }
     }
-    qInfo() << "Calculated destination floor as" << destinationFloor;
+    qInfo() << "[E]" << "Calculated destination floor as" << destinationFloor;
 }
 
 bool Elevator::canHandle(Passenger *passenger) {
@@ -193,21 +191,29 @@ bool Elevator::canHandle(Passenger *passenger) {
     }
 
     if (direction == UP) {
-        return passenger->getDirection() == UP;
+        if (isReturning) {
+            return passenger->getDirection() == UP && passenger->getWaitFloor() > currentFloor;
+        } else {
+            return passenger->getDirection() == DOWN && passenger->getWaitFloor() <= destinationFloor;
+        }
     }
 
     if (direction == DOWN) {
-        return passenger->getDirection() == DOWN;
+        if (isReturning) {
+            return passenger->getDirection() == DOWN && passenger->getWaitFloor() < currentFloor;
+        } else {
+            return passenger->getDirection() == UP && passenger->getWaitFloor() >= destinationFloor;
+        }
     }
 }
 
 void Elevator::openDoor() {
-    qInfo() << "Door opening";
+    qInfo() << "[E]" << "Door opening";
     QThread::msleep(waitDuration);
 }
 
 void Elevator::closeDoor() {
-    qInfo() << "Door closing";
+    qInfo() << "[E]" << "Door closing";
     QThread::msleep(2 * waitDuration);
     pickedUpPassager();
 }
@@ -237,7 +243,7 @@ void Elevator::rerender(int maxFloor) {
 }
 
 void Elevator::forceStop() {
-    qInfo() << "Forcing stop";
+    qInfo() << "[E]" << "Forcing stop";
     future.cancel();
     future.waitForFinished();
 }

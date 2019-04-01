@@ -12,8 +12,6 @@ ElevatorManager::ElevatorManager(unsigned long waitDuration, QWidget *parent) : 
 
     connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
 
-    addElevator(0, 5);
-    addElevator(6, 10);
     addElevator(0, 10);
 }
 
@@ -95,31 +93,34 @@ void ElevatorManager::recalculateButtons() {
 void ElevatorManager::callElevator(int from, int to) {
     auto *passenger = new Passenger(from, to);
     passengers.push_front(passenger);
-    qInfo() << "Called elevator:" << from << "->" << to << "[passengersCount:" << passengers.size() << "]";
+    qInfo() << "[M]" << "Called elevator:" << from << "->" << to << "[passengersCount:" << passengers.size() << "]";
     handlePassengers();
 }
 
 void ElevatorManager::handlePassengers() {
-    qInfo() << "Invoked handlePassengers()";
+    qInfo() << "[M]" << "Invoked handlePassengers()";
     passangerRequestedElevator();
     for (auto passenger : passengers) {
         std::list<Elevator *> availableElevators;
         std::copy_if(elevators.begin(), elevators.end(), std::back_inserter(availableElevators),
                      [=](Elevator *e) { return e->canHandle(passenger); });
 
-        if (passenger->hasNotAllocatedElevator() && !availableElevators.empty()) {
-            Elevator *closestElevator = availableElevators.front();
-            for (auto &elevator : availableElevators) {
-                int oldDistance = abs(closestElevator->getCurrentFloor() - passenger->getWaitFloor());
-                int distance = abs(elevator->getCurrentFloor() - passenger->getWaitFloor());
-                if (distance < oldDistance) {
-                    closestElevator = elevator;
+        if (passenger->hasNotAllocatedElevator()) {
+            if (!availableElevators.empty()) {
+                Elevator *closestElevator = availableElevators.front();
+                for (auto &elevator : availableElevators) {
+                    int oldDistance = abs(closestElevator->getCurrentFloor() - passenger->getWaitFloor());
+                    int distance = abs(elevator->getCurrentFloor() - passenger->getWaitFloor());
+                    if (distance < oldDistance) {
+                        closestElevator = elevator;
+                    }
                 }
+                closestElevator->addPassenger(passenger);
+                passenger->elevatorAllocated();
+                qInfo() << "[M]" << "Handled passenger" << *passenger;
+            } else {
+                qInfo() << "[M]" << "No elevator left" << *passenger;
             }
-            closestElevator->addPassenger(passenger);
-            passenger->elevatorAllocated();
-        } else {
-            passenger++;
         }
     }
 }

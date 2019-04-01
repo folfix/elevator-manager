@@ -1,7 +1,9 @@
 #ifndef PASSENGER_H
 #define PASSENGER_H
 
+#include <QtCore/QDebug>
 #include "src/elevator/direction.h"
+#include "ostream"
 
 
 enum PassengerStatus {NEW, WAITING_FOR_ELEVATOR, IN_ELEVATOR, DONE};
@@ -33,6 +35,7 @@ public:
     bool isDone();
 
     friend bool operator==(const Passenger & lhs, const Passenger & rhs);
+    friend QDebug& operator<< (QDebug& stream, const Passenger& p);
 
     int getWaitFloor();
     int getDestinationFloor();
