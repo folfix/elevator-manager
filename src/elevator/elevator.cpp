@@ -110,7 +110,7 @@ void Elevator::checkIfAnyPassengerIsInDestination() {
 
 void Elevator::checkIfAnyPassengerWantsGetIn() {
     bool anyOneWantsGetIn = std::any_of(passengers.begin(), passengers.end(), [=](Passenger *passenger) {
-        return passenger->isWaiting(currentFloor);
+        return passenger->isWaiting(currentFloor) && (passenger->getDirection() == direction || passenger->getWaitFloor() == destinationFloor);
     });
 
     bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger *passenger) {
