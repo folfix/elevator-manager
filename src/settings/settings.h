@@ -6,20 +6,23 @@
 
 
 namespace Ui {
-class Settings;
+    class Settings;
 }
 
-class Settings : public QDialog
-{
-    Q_OBJECT
+/**
+ * Representation of settings dialog.
+ */
+class Settings : public QDialog {
+Q_OBJECT
 
 public:
     explicit Settings(QWidget *parent = nullptr);
+
     ~Settings();
 
 private:
-    Ui::Settings *ui;
-    std::list<Elevator> elevators;
+    Ui::Settings *ui;                /**< UI object. */
+    std::list<Elevator> elevators;   /**< list of elevators. */
 };
 
 #endif // SETTINGS_H

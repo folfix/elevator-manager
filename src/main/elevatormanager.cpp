@@ -3,6 +3,13 @@
 #include "ui_elevatormanager.h"
 #include "src/settings/settings.h"
 
+/**
+ * Constructor of elevator manager.
+ * Initiate all required properties which include window size.
+ *
+ * @param waitDuration Time that elevator waits between floor and when opening/closing doors.
+ * @param parent QWidget parent (optional).
+ */
 ElevatorManager::ElevatorManager(unsigned long waitDuration, QWidget *parent) : QMainWindow(parent),
                                                                                 ui(new Ui::ElevatorManager) {
     ui->setupUi(this);
@@ -12,13 +19,27 @@ ElevatorManager::ElevatorManager(unsigned long waitDuration, QWidget *parent) : 
 
     connect(ui->settingsButton, &QAction::triggered, this, [=] { openSettings(); });
 
-    addElevator(0, 10);
+    addElevator(0, 10); /**< Add example elevator for a test.*/
+    addElevator(0, 10); /**< Add example elevator for a test.*/
+    addElevator(0, 10); /**< Add example elevator for a test.*/
 }
 
+/**
+ * Destructor.
+ */
 ElevatorManager::~ElevatorManager() {
     delete ui;
 }
 
+/**
+ * Allows adding elevator do GUI.
+ * It creates all required UI elements, and attaches it to the GUI.
+ * There are also signal/slot connections established.
+ *
+ * @param minFloor defines minimum reachable floor.
+ * @param maxFloor defines maximum reachable floor.
+ * @return created elevator.
+ */
 Elevator *ElevatorManager::addElevator(int minFloor, int maxFloor) {
     this->maxFloorOverall = this->maxFloorOverall < maxFloor ? maxFloor : this->maxFloorOverall;
 
@@ -37,22 +58,33 @@ Elevator *ElevatorManager::addElevator(int minFloor, int maxFloor) {
     connect(elevator, &Elevator::updateView, this, [=] { slider->setValue(elevator->getCurrentFloor()); });
     connect(elevator, &Elevator::updateView, this, [=] { lcd->display(elevator->getCurrentFloor()); });
     connect(elevator, &Elevator::finishedTransfer, this, [=] { handlePassengers(); });
-    connect(elevator, &Elevator::pickedUpPassager, this, [=] { handlePassengers(); });
+    connect(elevator, &Elevator::pickedUpPassenger, this, [=] { handlePassengers(); });
 
     this->elevators.push_front(elevator);
 
-    recalculateMinMaxFloor();
-    recalculateButtons();
+    rerenderElevators();
+    rerenderCallButtonsAndLabels();
     return elevator;
 }
 
-void ElevatorManager::recalculateMinMaxFloor() {
+/**
+ * Rerender elevator(s) view.
+ * Used when elevator is added.
+ * It delegated to the elevator itself.
+ */
+void ElevatorManager::rerenderElevators() {
     for (auto &elevator : this->elevators) {
         elevator->rerender(this->maxFloorOverall);
     }
 }
 
-void ElevatorManager::recalculateButtons() {
+/**
+ * Rerender buttons for calling elevator,
+ * and labels of waiting passengers.
+ * Used when elevator is added.
+ * All required UI elements are added to GUI and signal/slot connections.
+ */
+void ElevatorManager::rerenderCallButtonsAndLabels() {
     for (auto &i : buttonsEntries) {
         delete i;
     }
@@ -84,12 +116,17 @@ void ElevatorManager::recalculateButtons() {
         label->setText(QString("0"));
         ui->waitingList->addWidget(label);
         labels.push_front(label);
-        connect(this, &ElevatorManager::passangerRequestedElevator, label, [=] {
+        connect(this, &ElevatorManager::passengerRequestedElevator, label, [=] {
             label->setText(QString::number(waitingPassengers(fromFloor)));
         });
     }
 }
 
+/**
+ * Used for call elevator with given from/to floors.
+ * @param from floor.
+ * @param to floor.
+ */
 void ElevatorManager::callElevator(int from, int to) {
     auto *passenger = new Passenger(from, to);
     passengers.push_front(passenger);
@@ -97,9 +134,14 @@ void ElevatorManager::callElevator(int from, int to) {
     handlePassengers();
 }
 
+/**
+ * Handles waiting passengers.
+ * Checks if passenger has not allocated elevator
+ * and then starts to find the most optimal elevator (based on it's position).
+ */
 void ElevatorManager::handlePassengers() {
     qInfo() << "[M]" << "Invoked handlePassengers()";
-    passangerRequestedElevator();
+    passengerRequestedElevator();
     for (auto passenger : passengers) {
         std::list<Elevator *> availableElevators;
         std::copy_if(elevators.begin(), elevators.end(), std::back_inserter(availableElevators),
@@ -125,11 +167,19 @@ void ElevatorManager::handlePassengers() {
     }
 }
 
+/**
+ * Opens settings dialog.
+ */
 void ElevatorManager::openSettings() {
     auto *dialog = new Settings(this);
     dialog->exec();
 }
 
+/**
+ * Returns number of waiting passengers.
+ * @param floor to check.
+ * @return passengers that wait on given floor.
+ */
 int ElevatorManager::waitingPassengers(int floor) {
     int count = 0;
     for (auto passenger : passengers) {

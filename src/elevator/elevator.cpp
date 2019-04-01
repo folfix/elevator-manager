@@ -7,7 +7,16 @@
 #include "elevator.h"
 #include "src/main/elevatormanager.h"
 
-
+/**
+ * Elevator constructor.
+ * Initializes every required property of elevator.
+ *
+ * @param name Name of elevator.
+ * @param minFloor Minimal reachable floor.
+ * @param maxFloor Maximum reachable floor.
+ * @param slider Visual representation of elevator.
+ * @param waitDuration Duration of how log elevator will wait for change floor and open/close doors.
+ */
 Elevator::Elevator(QString name, int minFloor, int maxFloor, QProgressBar *slider, unsigned long waitDuration) {
     this->name = std::move(name);
     this->minFloor = minFloor;
@@ -21,6 +30,15 @@ Elevator::Elevator(QString name, int minFloor, int maxFloor, QProgressBar *slide
     isReturning = false;
 }
 
+/**
+ * Starts single ride.
+ *
+ * It's checked which direction elevator have to ride firstly.
+ * Function is ran twice per ride. There is isReturning flag used
+ * to determinate if elevator is returning.
+ * Within this function currentFloor, and destinationFloor are recalculated indirectly,
+ * appropriate functions are invoked.
+ */
 void Elevator::start() {
     if (currentFloor == destinationFloor) {
         qInfo() << "[E]" << "Elevator on destination floor";
@@ -64,6 +82,10 @@ void Elevator::start() {
     }
 }
 
+/**
+ * Function that based on passenger(s) calculates the lowest floor for waiting passenger(s).
+ * @return lowest waiting floor.
+ */
 int Elevator::getLowestWaitingFloor() {
     Passenger *min = *std::min_element(passengers.begin(), passengers.end(), [=](Passenger *a, Passenger *b) {
         return (a->getWaitFloor() < b->getWaitFloor());
@@ -71,6 +93,10 @@ int Elevator::getLowestWaitingFloor() {
     return min->getWaitFloor();
 }
 
+/**
+ * Function that based on passenger(s) calculates the highest floor for waiting passenger(s).
+ * @return highest waiting floor.
+ */
 int Elevator::getHighestWaitingFloor() {
     Passenger *max = *std::max_element(passengers.begin(), passengers.end(), [=](Passenger *a, Passenger *b) {
         return (a->getWaitFloor() < b->getWaitFloor());
@@ -78,6 +104,10 @@ int Elevator::getHighestWaitingFloor() {
     return max->getWaitFloor();
 }
 
+/**
+ * Function that based on passenger(s) calculates the lowest destination floor for passenger(s).
+ * @return lowest destination floor.
+ */
 int Elevator::getLowestDestinationFloor() {
     Passenger *min = *std::min_element(passengers.begin(), passengers.end(), [=](Passenger *a, Passenger *b) {
         return (a->getDestinationFloor() < b->getDestinationFloor());
@@ -85,6 +115,10 @@ int Elevator::getLowestDestinationFloor() {
     return min->getDestinationFloor();
 }
 
+/**
+ * Function that based on passenger(s) calculates the lowest destination floor for passenger(s).
+ * @return lowest destination floor.
+ */
 int Elevator::getHighestDestinationFloor() {
     Passenger *max = *std::max_element(passengers.begin(), passengers.end(), [=](Passenger *a, Passenger *b) {
         return (a->getDestinationFloor() < b->getDestinationFloor());
@@ -92,6 +126,11 @@ int Elevator::getHighestDestinationFloor() {
     return max->getDestinationFloor();
 }
 
+/**
+ * Checks if any passenger(s) reaches it's destination floor.
+ * If it's fulfilled, then door are open and closed.
+ * Passenger(s) are marked as done.
+ */
 void Elevator::checkIfAnyPassengerIsInDestination() {
     bool anyOneInDestination = std::any_of(passengers.begin(), passengers.end(), [=](Passenger *passenger) {
         return passenger->isInElevator() && currentFloor == passenger->getDestinationFloor();
@@ -108,6 +147,11 @@ void Elevator::checkIfAnyPassengerIsInDestination() {
     }
 }
 
+/**
+ * Checks if any passenger(s) wants to get in to elevator.
+ * If it's fulfilled, then door are open and closed.
+ * Passenger(s) are marked as in elevator.
+ */
 void Elevator::checkIfAnyPassengerWantsGetIn() {
     bool anyOneWantsGetIn = std::any_of(passengers.begin(), passengers.end(), [=](Passenger *passenger) {
         return passenger->isWaiting(currentFloor) && (passenger->getDirection() == direction || passenger->getWaitFloor() == destinationFloor);
@@ -135,6 +179,13 @@ void Elevator::checkIfAnyPassengerWantsGetIn() {
     }
 }
 
+/**
+ * Adds passenger to ride.
+ * It's checked if passenger can be handled.
+ * In case that it's not, exception is thrown.
+ *
+ * @param passenger to handle.
+ */
 void Elevator::addPassenger(Passenger *passenger) {
     qInfo() << "[E]" << "Passenger is waiting for elevator at floor" << passenger->getWaitFloor();
 
@@ -151,6 +202,9 @@ void Elevator::addPassenger(Passenger *passenger) {
     }
 }
 
+/**
+ * Updates destination floor based on passenger(s).
+ */
 void Elevator::updateDestinationFloor() {
     int lowestWaitingFloor = getLowestWaitingFloor();
     int highestWaitingFloor = getHighestWaitingFloor();
@@ -175,6 +229,11 @@ void Elevator::updateDestinationFloor() {
     qInfo() << "[E]" << "Calculated destination floor as" << destinationFloor;
 }
 
+/**
+ * Checks if given passenger can be handled in elevator.
+ * @param passenger to check.
+ * @return result of check.
+ */
 bool Elevator::canHandle(Passenger *passenger) {
     if (passenger->getWaitFloor() != 0 &&
         (passenger->getWaitFloor() < minFloor || passenger->getWaitFloor() > maxFloor)) {
@@ -207,41 +266,79 @@ bool Elevator::canHandle(Passenger *passenger) {
     }
 }
 
+/**
+ * Opens the door.
+ * It's single waitDuration time required to open the door.
+ */
 void Elevator::openDoor() {
     qInfo() << "[E]" << "Door opening";
     QThread::msleep(waitDuration);
 }
 
+/**
+ * Closes the door.
+ * It's doubled waitDuration time required to close the door.
+ */
 void Elevator::closeDoor() {
     qInfo() << "[E]" << "Door closing";
     QThread::msleep(2 * waitDuration);
-    pickedUpPassager();
+    pickedUpPassenger();
 }
 
+/**
+ * Returns direction.
+ * @return direction.
+ */    /**
+     * Returns direction.
+     * @return direction.
+     */
 Direction Elevator::getDirection() {
     return direction;
 }
 
+/**
+ * Returns name.
+ * @return
+ */
 QString Elevator::getName() {
     return this->name;
 }
 
+/**
+ * Returns minimal reachable floor.
+ * @return minimal reachable floor.
+ */
 int Elevator::getMinFloor() {
     return this->minFloor;
 }
 
+/**
+ * Returns maximum reachable floor.
+ * @return maximum reachable floor.
+ */
 int Elevator::getMaxFloor() {
     return this->maxFloor;
 }
 
+/**
+ * Returns current floor.
+ * @return current floor.
+ */
 int Elevator::getCurrentFloor() {
     return this->currentFloor;
 }
 
+/**
+ * Rerender visualization of elevator.
+ * @param maxFloor Top limit for elevator visualization.
+ */
 void Elevator::rerender(int maxFloor) {
     slider->setMaximum(maxFloor);
 }
 
+/**
+ * Used in testing purposes to stop ride future.
+ */
 void Elevator::forceStop() {
     qInfo() << "[E]" << "Forcing stop";
     future.cancel();
